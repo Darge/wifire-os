@@ -6,6 +6,8 @@
 #include "kmem.h"
 #include "context.h"
 #include "libkern.h"
+#include "thread.h"
+#include "run_queue.h"
 
 char str[] = "This is a global string!\n";
 char empty[100]; /* This should land in .bss and get cleared by _start procedure. */
@@ -280,17 +282,19 @@ int kernel_main() {
 
   unsigned last = 0;
   while (1) {
-    /* Invert pins PA7-PA0. */
-    LATAINV = 1 << 0;  mdelay (100);
-    LATAINV = 1 << 1;  mdelay (100);
-    LATAINV = 1 << 2;  mdelay (100);
-    LATAINV = 1 << 3;  mdelay (100);
-    LATFINV = 1 << 13; mdelay (100);
-    LATFINV = 1 << 12; mdelay (100);
-    LATAINV = 1 << 6;  mdelay (100);
-    LATAINV = 1 << 7;  mdelay (100);
-
     mdelay(200);
+
+
+
+
+
+    thread_t thread;
+    thread.td_priority = 0;
+    thread.td_priority++;
+
+
+
+
 
     loop++;
     unsigned curr = clock_get_ms();

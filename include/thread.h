@@ -3,6 +3,10 @@
 
 #include "common.h"
 #include "queue.h"
+#include "context.h"
+
+#define SUCCESS 1
+#define FAILURE 0
 
 typedef uint8_t prio_t;
 
@@ -19,6 +23,7 @@ typedef struct thread {
   td_sched_t *td_sched;           /* scheduler-specific data */
   prio_t td_priority;
   stack_t td_stack;
+  ctx_t td_context;
   enum {
     TDS_INACTIVE = 0x0,
     TDS_WAITING,
@@ -27,4 +32,9 @@ typedef struct thread {
   } td_state;
 } thread_t;
 
-#endif
+int thread_create(thread_t* thread_ptr, prio_t priority, void (*function_ptr)(void * ) , void *args);
+void thread_exit() __attribute__((noreturn));
+void thread_destroy(thread_t *);
+int thread_join(thread_t *);
+
+#endif // __THREAD_H__
