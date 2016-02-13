@@ -310,36 +310,25 @@ int kernel_main() {
   runq_add(&runq, &t4);
   if (runq_choose(&runq) != &t4)
     kprintf("You made an implementation error\n");
-
   runq_remove(&runq, &t4);
-  //runq_remove(&runq, &t3);
-  //if (runq_choose(&runq) != &t2)
-  //  kprintf("You made an implementation error\n");
-
-  kprintf("Priority: %d\n", runq_choose(&runq)->td_priority);
-
-  //runq_remove(&runq, &t2);
-  //if (runq_choose(&runq) != &t1)
-  //  kprintf("You made an implementation error\n");
-  //runq_remove(&runq, &t1);
+  if (runq_choose(&runq) != &t2)
+    kprintf("You made an implementation error\n");
+  runq_remove(&runq, &t3);
+  if (runq_choose(&runq) != &t2)
+    kprintf("You made an implementation error\n");
+  runq_remove(&runq, &t2);
+  if (runq_choose(&runq) != &t1)
+    kprintf("You made an implementation error\n");
+  runq_remove(&runq, &t1);
+  if (runq_choose(&runq) != NULL)
+    kprintf("You made an implementation error\n");
   
-
-
-
 
 
 
   unsigned last = 0;
   while (1) {
     mdelay(200);
-
-
-
-
-
-
-
-
 
 
     loop++;
