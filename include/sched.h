@@ -1,5 +1,5 @@
 #ifndef __SCHED_H__
-#define __RUN_QUEUE_H__
+#define __SCHED_H__
 
 /*
  * This is an extension to the thread structure
@@ -38,4 +38,4 @@ thread_t *sched_choose();
 /* Runs main loop of the scheduler. */
 void sched_run();
 
-#endif // __RUN_QUEUE_H__
+#endif // __SCHED_H__

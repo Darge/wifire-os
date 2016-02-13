@@ -255,6 +255,7 @@ int kernel_main() {
   /*
    * Print initial state of control registers.
    */
+   /*
   kprintf ("-\n");
   kprintf ("Status   = 0x%08x\n", mips32_get_c0(C0_STATUS));
   kprintf ("IntCtl   = 0x%08x\n", mips32_get_c0(C0_INTCTL));
@@ -274,11 +275,27 @@ int kernel_main() {
   kprintf ("DEVCFG0  = 0x%08x\n", DEVCFG0);
   kprintf ("DEVCFG1  = 0x%08x\n", DEVCFG1);
   kprintf ("DEVCFG2  = 0x%08x\n", DEVCFG2);
-  kprintf ("DEVCFG3  = 0x%08x\n", DEVCFG3);
+  kprintf ("DEVCFG3  = 0x%08x\n", DEVCFG3);*/
 
   clock_init();
 
   demo_ctx();
+
+
+
+  thread_t thread;
+  thread.td_priority = 0;
+  thread.td_priority++;
+
+
+  runq_t runq;
+  runq.stub = 0;
+  runq.stub++;
+
+  runq_init(&runq);
+
+
+
 
   unsigned last = 0;
   while (1) {
@@ -288,9 +305,6 @@ int kernel_main() {
 
 
 
-    thread_t thread;
-    thread.td_priority = 0;
-    thread.td_priority++;
 
 
 

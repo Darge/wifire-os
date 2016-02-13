@@ -25,16 +25,16 @@ typedef struct thread {
   stack_t td_stack;
   ctx_t td_context;
   enum {
-    TDS_INACTIVE = 0x0,
+    TDS_INACTIVE = 0,
     TDS_WAITING,
     TDS_READY,
     TDS_RUNNING
   } td_state;
 } thread_t;
 
-int thread_create(thread_t* thread_ptr, prio_t priority, void (*function_ptr)(void * ) , void *args);
+int thread_create(thread_t* td_ptr, prio_t priority, void (*function_ptr)(void * ) , void *args);
 void thread_exit() __attribute__((noreturn));
-void thread_destroy(thread_t *);
-int thread_join(thread_t *);
+void thread_destroy(thread_t* td_ptr);
+int thread_join(thread_t* td_ptr);
 
 #endif // __THREAD_H__
