@@ -283,16 +283,48 @@ int kernel_main() {
 
 
 
-  thread_t thread;
-  thread.td_priority = 0;
-  thread.td_priority++;
+  thread_t t1;
+  t1.td_priority = 3;
+  thread_t t2;
+  t2.td_priority = 4;
+  thread_t t3;
+  t3.td_priority = 1;
+  thread_t t4;
+  t4.td_priority = 5;
+
 
 
   runq_t runq;
-  runq.stub = 0;
-  runq.stub++;
 
   runq_init(&runq);
+
+  runq_add(&runq, &t1);
+  if (runq_choose(&runq) != &t1)
+    kprintf("You made an implementation error\n");
+  runq_add(&runq, &t2);
+  if (runq_choose(&runq) != &t2)
+    kprintf("You made an implementation error\n");
+  runq_add(&runq, &t3);
+  if (runq_choose(&runq) != &t2)
+    kprintf("You made an implementation error\n");
+  runq_add(&runq, &t4);
+  if (runq_choose(&runq) != &t4)
+    kprintf("You made an implementation error\n");
+
+  runq_remove(&runq, &t4);
+  //runq_remove(&runq, &t3);
+  //if (runq_choose(&runq) != &t2)
+  //  kprintf("You made an implementation error\n");
+
+  kprintf("Priority: %d\n", runq_choose(&runq)->td_priority);
+
+  //runq_remove(&runq, &t2);
+  //if (runq_choose(&runq) != &t1)
+  //  kprintf("You made an implementation error\n");
+  //runq_remove(&runq, &t1);
+  
+
+
 
 
 

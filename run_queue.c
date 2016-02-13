@@ -1,3 +1,4 @@
+#include "common.h"
 #include "run_queue.h"
 #include "libkern.h"
 
@@ -13,12 +14,19 @@ void runq_add(runq_t* runq_ptr, struct thread* thread_ptr) {
     return;
   }
 
+  bool inserted = false;
   struct thread* loop_td_ptr;
-  TAILQ_FOREACH(loop_td_ptr, &runq_ptr->runq_head, td_runq) {
 
+  TAILQ_FOREACH(loop_td_ptr, &runq_ptr->runq_head, td_runq) {
+    if (loop_td_ptr->td_priority < thread_ptr->td_priority) {
+      TAILQ_INSERT_BEFORE(loop_td_ptr, thread_ptr, td_runq);
+      inserted = true;
+    }
   }
 
-
+  if (!inserted){
+    TAILQ_INSERT_TAIL(&runq_ptr->runq_head, thread_ptr, td_runq);
+  }
 }
 
 struct thread* runq_choose(runq_t* runq_ptr) {
@@ -26,5 +34,5 @@ struct thread* runq_choose(runq_t* runq_ptr) {
 }
 
 void runq_remove(runq_t* runq_ptr, struct thread* thread_ptr) {
-
+  TAILQ_REMOVE(&runq_ptr->runq_head, thread_ptr, td_runq);
 }
