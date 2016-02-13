@@ -2,6 +2,7 @@
 #include "clock.h"
 #include "pic32mz.h"
 #include <libkern.h>
+#include "sched.h"
 
 /* Provided by linker script. */
 extern const char __ebase[];
@@ -70,12 +71,6 @@ void intr_init() {
   mips32_bs_c0(C0_STATUS, SR_IE);
 }
 
-static int sched_counter = 0;
-
-
-
-
-
 void intr_dispatcher() {
   unsigned irq_n = PIC32_INTSTAT_VEC(INTSTAT);
   /* Recognize interrupt type. */
@@ -84,12 +79,7 @@ void intr_dispatcher() {
       /* Core timer interrupt. */
       hardclock();
       IFSCLR(0) = 1 << PIC32_IRQ_CT;
-
-      sched_counter++;
-      if (sched_counter == 100) {
-        kprintf("Wee\n");
-        sched_counter = 0;
-      }
+      sched_run();
 
 
       break;

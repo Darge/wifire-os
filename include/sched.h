@@ -1,14 +1,16 @@
 #ifndef __SCHED_H__
 #define __SCHED_H__
 
+#include "thread.h"
+
 /*
  * This is an extension to the thread structure
  * and is tailored to the requirements of this scheduler.
  */
 typedef struct td_sched {
-    ts_timeslice;  /* As assigned based on priority. */ 
-    ts_remaining;  /* Remaining part of time slice. */
-    ...
+//    ts_timeslice;  /* As assigned based on priority. */ 
+//    ts_remaining;  /* Remaining part of time slice. */
+  int stub;
 } td_sched_t;
 
 /* Set the priority to an absolute value. */

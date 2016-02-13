@@ -35,6 +35,5 @@ struct thread* runq_choose(runq_t* runq_ptr) {
 }
 
 void runq_remove(runq_t* runq_ptr, struct thread* thread_ptr) {
-
   TAILQ_REMOVE(&runq_ptr->runq_head, thread_ptr, td_runq);
 }
