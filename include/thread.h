@@ -33,7 +33,7 @@ typedef struct thread {
 } thread_t;
 
 int thread_create(thread_t* td_ptr, prio_t priority, void (*function_ptr)(void * ) , void *args);
-void thread_exit() __attribute__((noreturn));
+void thread_exit() __attribute__((__noreturn__));
 void thread_destroy(thread_t* td_ptr);
 int thread_join(thread_t* td_ptr);
 

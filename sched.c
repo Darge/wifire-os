@@ -11,7 +11,7 @@
 
 static int sched_counter = 0;
 static runq_t runq;
-static thread_t current_td;
+//static thread_t current_td;
 
 
 void sched_run() {
