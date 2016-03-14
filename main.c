@@ -3,7 +3,7 @@
 #include "global_config.h"
 #include "interrupts.h"
 #include "clock.h"
-#include "kmem.h"
+#include "malloc.h"
 #include "context.h"
 #include "libkern.h"
 #include "thread.h"
@@ -84,8 +84,8 @@ void mdelay (unsigned msec) {
 }
 
 static ctx_t ctx0, ctx1, ctx2;
-static word_t stack1[200];
-static word_t stack2[200];
+static intptr_t stack1[200];
+static intptr_t stack2[200];
 
 static void demo_context_1() {
   int times = 3;
@@ -338,4 +338,6 @@ int kernel_main() {
   }
 }
 
-
+void kernel_exit() {
+  for(;;);
+}

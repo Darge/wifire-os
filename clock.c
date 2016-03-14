@@ -9,8 +9,7 @@
 static volatile uint32_t timer_ms_count;
 
 void clock_init() {
-  /* Disable interrupts while we are configuring them. */
-  uint32_t s = di();
+  uint32_t sr = _mips_intdisable();
 
   mips32_set_c0(C0_COUNT, 0);
   mips32_set_c0(C0_COMPARE, TICKS_PER_MS);
@@ -21,14 +20,14 @@ void clock_init() {
   IFSSET(0) = 1;
   /* Set core timer interrupts priority to 6 (highest) */
   uint32_t p = IPC(0);
-  CLR(p, PIC32_IPC_IP0(7)); // Clear priority 0 bits
-  SET(p, PIC32_IPC_IP0(6)); // Set them to 6
+  p &= ~PIC32_IPC_IP0(7); // Clear priority 0 bits
+  p |= PIC32_IPC_IP0(6);  // Set them to 6
   IPC(0) = p;
   /* Enable core timer interrupts. */
   IECSET(0) = 1;
 
   /* It is safe now to re-enable interrupts. */
-  ei(s);
+  _mips_intrestore(sr);
 }
 
 uint32_t clock_get_ms() {

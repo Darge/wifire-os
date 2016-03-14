@@ -15,13 +15,13 @@
 typedef struct ctx {
   union {
     struct {
-      word_t ra;
-      word_t fp;
-      word_t sp;
-      word_t gp;
-      word_t s0, s1, s2, s3, s4, s5, s6, s7;
+      intptr_t ra;
+      intptr_t fp;
+      intptr_t sp;
+      intptr_t gp;
+      intptr_t s0, s1, s2, s3, s4, s5, s6, s7;
     };
-    word_t regs[12];
+    intptr_t regs[12];
   };
 } ctx_t;
 
@@ -36,7 +36,7 @@ uint32_t ctx_save(ctx_t *ctx) __attribute__((warn_unused_result));
  * Restores a previously stored context. This function does not
  * return. The control flow jumps to the corresponding ctx_store.
  */
-void ctx_load(const ctx_t *ctx) __attribute__((noreturn));
+void noreturn ctx_load(const ctx_t *ctx);
 
 /*
  * This function sets the contents of a context struct, zeroing it's
