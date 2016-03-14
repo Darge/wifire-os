@@ -21,6 +21,7 @@ void sched_run() {
   kprintf("Scheduler is run\n");
   sched_counter = 0;
 }
+
 /* What happens if there are no threads to run? */
 thread_t* sched_choose() {
   return runq_choose(&runq);
