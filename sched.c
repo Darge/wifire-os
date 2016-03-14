@@ -2,6 +2,7 @@
 #include "sched.h"
 #include "run_queue.h"
 #include "context.h"
+#include "thread.h"
 
 /* Defines here or in sched.h? */
 /* Should they be defines, or const ints? */
@@ -10,6 +11,8 @@
 
 static int sched_counter = 0;
 static runq_t runq;
+static thread_t current_td;
+
 
 void sched_run() {
   if (++sched_counter < SCHEDULER_FREQUENCY)

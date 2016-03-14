@@ -7,8 +7,10 @@ void ctx_init(ctx_t *ctx, void (*target)(), void *stack, void *gp) {
   ctx->sp = (word_t)stack;
   ctx->gp = (word_t)gp;
 }
+int foo() {return 1;}
 
 void ctx_switch(ctx_t *from, ctx_t *to) {
+  foo();
   if (!ctx_save(from))
     ctx_load(to);
 }

@@ -35,7 +35,7 @@ void sched_switch(thread_t *oldtd, thread_t *newtd);
 void sched_add(thread_t *td);
 
 /* Choose the highest priority thread to run. */
-thread_t *sched_choose();
+thread_t* sched_choose();
 
 /* Runs main loop of the scheduler. */
 void sched_run();
