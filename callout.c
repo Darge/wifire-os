@@ -122,13 +122,15 @@ void callout_process(sbintime_t now) {
 
   TAILQ_FOREACH(current, head, c_link) {
     // Deal with the next element if the currrent one is not the tail.
-    while (current != TAILQ_LAST(head, callout_head)) { // Is this proper? Well, it compiles...
-      //log("in if");
-      struct callout* next = TAILQ_NEXT(current, c_link);
-      bool deleted = process_element(head, next);
-      if (deleted == false)
-        break;
-    }
+    bool element_deleted;
+    do {
+      element_deleted = false;
+
+      if (current != TAILQ_LAST(head, callout_head)) {
+        struct callout* next = TAILQ_NEXT(current, c_link);
+        element_deleted = process_element(head, next);
+      }
+    } while (element_deleted);
   }
 
   // Deal with the first element
