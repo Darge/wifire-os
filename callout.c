@@ -11,17 +11,25 @@
   thus allowing us to access random elements in constant time.
 
   TODO:
-  -Change from unsigned int to some proper type.
+  - Change from unsigned int to some proper type.
+
   - long longs (nor int64_t) work: "Undefined reference to '__divdi3'"".
     https://gcc.gnu.org/onlinedocs/gcc/Link-Options.html, so I had
     to change sbintime_t from int64_t to int.
     Do we have <stdint.h>? smallclib doesn't have it.
+
   - what to do with that strange bitset.h and _bitset.h?
     Edit an external source file?
     Besides, those bitset functions are weird
+
   - What do "pending" and "active" mean?
-  - "Let’s not take a saw to the branch we're sitting on".
-    How to delete elements from the list?
+
+  - Keep information about time left, or simply time?
+    The first one means that we have to decrement every callout.
+
+  - Who deallocates the memory for callouts? Does it happen
+    during the function execution? Do I take care of that,
+    or the person that registered the callout?
 */
 
 TAILQ_HEAD(callout_head, callout);
@@ -63,8 +71,14 @@ void callout_stop(callout_t *handle) {
   TAILQ_REMOVE(&ci.heads[handle->index], handle, c_link);
 }
 
-void process_element(struct callout* element) {
+void process_element(struct callout_head* head, struct callout* element) {
   // If the time has come, execute it and delete from the list.
+
+  //if (timeHasCome()) 
+  {
+    TAILQ_REMOVE(head, element, c_link);
+    element->c_func(element->c_arg);
+  }
 }
 
 /* Process all timeouts, should be called from hardclock or softclock. */
@@ -72,23 +86,23 @@ void process_element(struct callout* element) {
 void callout_process(sbintime_t now) {
   ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
 
-  struct callout_head head = ci.heads[ci.current_position];
+  struct callout_head* head = &ci.heads[ci.current_position];
   struct callout_head newHead;
   TAILQ_INIT(&newHead);
 
 
   struct callout* current;
-  TAILQ_FOREACH(current, &head, c_link) {
+  TAILQ_FOREACH(current, head, c_link) {
     // We deal with the next element if the currrent one is not the tail.
-    if (current != TAILQ_LAST(&head, callout_head)) { // Is this proper?
+    if (current != TAILQ_LAST(head, callout_head)) { // Is this proper?
       struct callout* next = TAILQ_NEXT(current, c_link);
-      process_element(next);
+      process_element(head, next);
     }
   }
 
   // We deal with the first element
-  if (!TAILQ_EMPTY(&head)) {
-    struct callout* first = TAILQ_FIRST(&head);
-    process_element(first);
+  if (!TAILQ_EMPTY(head)) {
+    struct callout* first = TAILQ_FIRST(head);
+    process_element(head, first);
   }
 }
