@@ -3,7 +3,7 @@
 
 // The stuff in callout.h is just external interface. Here, we will do some magic.
 
-#define NUMBER_OF_CALLOUT_BUCKETS 200
+#define NUMBER_OF_CALLOUT_BUCKETS 20
 
 /*
   Every event is inside one of NUMBER_OF_CALLOUT_BUCKETS buckets.
@@ -23,10 +23,13 @@
     Edit an external source file?
     Besides, those bitset functions are weird
 
-  - What do "pending" and "active" mean?
+  - What do "pending" and "active" mean? What's all about these flags?
 
-  - Keep information about time left, or simply time?
-    The first one means that we have to decrement every callout.
+  - Keep information about time left (which basically means "ticks"), or simply time?
+    The first one means that we have to decrement every callout. Then callout_process()
+    shouldn't accept any argument.
+    The second one means that we have to know the current time somehow during
+    callout_setup, and not just the delta.
 
   - Who deallocates the memory for callouts? Does it happen
     during the function execution? Do I take care of that,
@@ -55,6 +58,7 @@ void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *
   memset(handle, 0, sizeof(struct callout));
 
   int index = (ci.current_position + time) % NUMBER_OF_CALLOUT_BUCKETS;
+  kprintf("Inserting into index: %d, because current_position = %d and time = %d\n", index, ci.current_position, time);
 
   handle->c_time = time;
   handle->c_func = fn;
@@ -62,10 +66,10 @@ void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *
   handle->index = index;
   callout_active(handle);
 
-  TAILQ_INSERT_HEAD(&ci.heads[index], handle, c_link);
+  TAILQ_INSERT_TAIL(&ci.heads[index], handle, c_link);
 
   uint64_t abc = 0; // this works though.
-  abc++;
+  abc++; // TODO: delete it
 }
 
 void callout_stop(callout_t *handle) {
@@ -82,11 +86,14 @@ void process_element(struct callout_head* head, struct callout* element) {
 
 /* Decreases timeouts in all callouts by one */
 void decrease_timeouts() {
+
   for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++) {
+    log("%s %d", "Processing bucket number: ", i);
     struct callout_head* head = &ci.heads[i];
     struct callout* current;
 
     TAILQ_FOREACH(current, head, c_link) {
+      log("Decreasing from %d to %d. Its address is: %p, and the head address is: %p", current->c_time, current->c_time - 1, current, head);
       current->c_time--;
 
       if (current->c_time < 0) {
@@ -103,23 +110,36 @@ void decrease_timeouts() {
 */
 void callout_process(sbintime_t now) {
   ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
+  decrease_timeouts();
 
   struct callout_head* head = &ci.heads[ci.current_position];
-  struct callout_head newHead;
-  TAILQ_INIT(&newHead);
 
   struct callout* current;
+  /* DEBUG */
+  int counter = 0;
+  TAILQ_FOREACH(current, head, c_link)
+  {
+    counter++;
+  }
+  log("Looks like this list has %d elements", counter);
+  /* END OF DEBUG */
   TAILQ_FOREACH(current, head, c_link) {
     // Deal with the next element if the currrent one is not the tail.
     if (current != TAILQ_LAST(head, callout_head)) { // Is this proper? Well, it compiles...
+      log("in if");
       struct callout* next = TAILQ_NEXT(current, c_link);
       process_element(head, next);
+    }
+    else
+    {
+      log("in ELSE");
     }
   }
 
   // Deal with the first element
   if (!TAILQ_EMPTY(head)) {
     struct callout* first = TAILQ_FIRST(head);
+    log("Trying to process the head");
     process_element(head, first);
   }
 }

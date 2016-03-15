@@ -8,6 +8,7 @@
 #include "libkern.h"
 #include "thread.h"
 #include "run_queue.h"
+#include "callout.h"
 
 char str[] = "This is a global string!\n";
 char empty[100]; /* This should land in .bss and get cleared by _start procedure. */
@@ -225,6 +226,11 @@ static bool read_config() {
  * - The EXL and ERL bits in the Status register are both zero
  */
 
+void bar(void* arg) {
+  kprintf("Someone executed me! Science, bro! After %d ticks.\n", *((int*)arg));
+}
+
+
 int kernel_main() {
   /* Initialize coprocessor 0. */
   //mtc0 (C0_CAUSE, 0, 1 << 23);        /* Set IV */
@@ -322,7 +328,38 @@ int kernel_main() {
   runq_remove(&runq, &t1);
   if (runq_choose(&runq) != NULL)
     kprintf("You made an implementation error\n");
-  
+
+
+
+  callout_init();
+  //callout_process(0);
+  callout_t callout[10];
+  int timeOuts[10] = {2, 5, 3, 1, 6, 3, 7, 10, 5, 3};
+  for (int i = 0; i < 10; i++)
+
+    callout_setup(&callout[i], timeOuts[i], bar, (void*)&timeOuts[i]);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  kprintf("calling callout_process()\n");
+  callout_process(0);
+  //callout_process(0);
+
 
 
 

@@ -79,7 +79,7 @@ void intr_dispatcher() {
       /* Core timer interrupt. */
       hardclock();
       IFSCLR(0) = 1 << PIC32_IRQ_CT;
-      sched_run();
+      //sched_run();
 
 
       break;
