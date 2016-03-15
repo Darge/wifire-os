@@ -10,7 +10,16 @@
   The buckets is a cyclic list, but we implement it as an array,
   thus allowing us to access random elements in constant time.
 
-  TODO: Change from unsigned int to some proper type.
+  TODO:
+  -Change from unsigned int to some proper type.
+  - long longs (nor int64_t) work: "Undefined reference to '__divdi3'"".
+    https://gcc.gnu.org/onlinedocs/gcc/Link-Options.html, so I had
+    to change sbintime_t from int64_t to int.
+    Do we have <stdint.h>? smallclib doesn't have it.
+  - what to do with that strange bitset.h and _bitset.h?
+    Edit an external source file?
+    Besides, those bitset functions are weird
+  - What do "pending" and "active" mean?
 */
 
 TAILQ_HEAD(callout_head, callout);
@@ -27,7 +36,6 @@ static callout_internal_t ci;
 void callout_init()
 {
   memset(&ci, 0, sizeof ci); 
-  //ci.current_position = 0;
   for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++)
   {
     TAILQ_INIT(&ci.heads[i]);
@@ -37,22 +45,25 @@ void callout_init()
 
 void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *arg)
 {
-  // Calculate index at which we should put that callout.
+  memset(handle, 0, sizeof(struct callout)); 
+  
   int index = (ci.current_position + time) % NUMBER_OF_CALLOUT_BUCKETS;
-  //struct callout_head* head = ci.heads[index];
+
+  handle->c_time = time;
+  handle->c_func = fn;
+  handle->c_arg = arg;
+  handle->index = index;
+  callout_active(handle);
 
   TAILQ_INSERT_HEAD(&ci.heads[index], handle, c_link);
 
-  //TAILQ_FIRST(&head);
-
-  //TAILQ_INSERT_HEAD(&(ci.heads[index]), handle, c_link);
-
-
+  uint64_t abc = 0; // this works though.
+  abc++;
 }
 
 void callout_stop(callout_t *handle)
 {
-
+  TAILQ_REMOVE(&ci.heads[handle->index], handle, c_link);
 }
 
 /* Process all timeouts, should be called from hardclock or softclock. */
