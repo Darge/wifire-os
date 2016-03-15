@@ -45,15 +45,15 @@ static callout_internal_t ci;
 
 
 void callout_init() {
-  memset(&ci, 0, sizeof ci); 
+  memset(&ci, 0, sizeof ci);
 
   for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++)
     TAILQ_INIT(&ci.heads[i]);
 }
 
 void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *arg) {
-  memset(handle, 0, sizeof(struct callout)); 
-  
+  memset(handle, 0, sizeof(struct callout));
+
   int index = (ci.current_position + time) % NUMBER_OF_CALLOUT_BUCKETS;
 
   handle->c_time = time;
@@ -74,8 +74,7 @@ void callout_stop(callout_t *handle) {
 
 /* If the time has come, execute the callout function and delete it from the list. */
 void process_element(struct callout_head* head, struct callout* element) {
-  if (element->c_time == 0) 
-  {
+  if (element->c_time == 0) {
     TAILQ_REMOVE(head, element, c_link);
     element->c_func(element->c_arg);
   }
@@ -97,10 +96,10 @@ void decrease_timeouts() {
   }
 }
 
-/* 
-  This function takes the next bucket and deals with its contents. 
+/*
+  This function takes the next bucket and deals with its contents.
   If we decide to run through several buckets at once, just run
-  this function many times
+  this function many times.
 */
 void callout_process(sbintime_t now) {
   ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
