@@ -3,7 +3,7 @@
 
 // The stuff in callout.h is just external interface. Here, we will do some magic.
 
-#define NUMBER_OF_CALLOUT_BUCKETS 20
+#define NUMBER_OF_CALLOUT_BUCKETS 5
 
 /*
   Every event is inside one of NUMBER_OF_CALLOUT_BUCKETS buckets.
@@ -76,12 +76,17 @@ void callout_stop(callout_t *handle) {
   TAILQ_REMOVE(&ci.heads[handle->index], handle, c_link);
 }
 
-/* If the time has come, execute the callout function and delete it from the list. */
-void process_element(struct callout_head* head, struct callout* element) {
+/* 
+  If the time has come, execute the callout function and delete it from the list. 
+  Returns true if an element was deleted, false otherwise.
+*/
+bool process_element(struct callout_head* head, struct callout* element) {
   if (element->c_time == 0) {
     TAILQ_REMOVE(head, element, c_link);
     element->c_func(element->c_arg);
+    return true;
   }
+  return false;
 }
 
 /* Decreases timeouts in all callouts by one */
@@ -120,7 +125,9 @@ void callout_process(sbintime_t now) {
     while (current != TAILQ_LAST(head, callout_head)) { // Is this proper? Well, it compiles...
       //log("in if");
       struct callout* next = TAILQ_NEXT(current, c_link);
-      process_element(head, next);
+      bool deleted = process_element(head, next);
+      if (deleted == false)
+        break;
     }
   }
 
