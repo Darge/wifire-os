@@ -20,6 +20,8 @@
     Edit an external source file?
     Besides, those bitset functions are weird
   - What do "pending" and "active" mean?
+  - "Let’s not take a saw to the branch we're sitting on".
+    How to delete elements from the list?
 */
 
 TAILQ_HEAD(callout_head, callout);
@@ -33,18 +35,14 @@ typedef struct callout_internal {
 static callout_internal_t ci;
 
 
-void callout_init()
-{
+void callout_init() {
   memset(&ci, 0, sizeof ci); 
-  for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++)
-  {
-    TAILQ_INIT(&ci.heads[i]);
-  }
 
+  for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++)
+    TAILQ_INIT(&ci.heads[i]);
 }
 
-void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *arg)
-{
+void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *arg) {
   memset(handle, 0, sizeof(struct callout)); 
   
   int index = (ci.current_position + time) % NUMBER_OF_CALLOUT_BUCKETS;
@@ -61,13 +59,36 @@ void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *
   abc++;
 }
 
-void callout_stop(callout_t *handle)
-{
+void callout_stop(callout_t *handle) {
   TAILQ_REMOVE(&ci.heads[handle->index], handle, c_link);
 }
 
-/* Process all timeouts, should be called from hardclock or softclock. */
-void callout_process(sbintime_t now)
-{
+void process_element(struct callout* element) {
+  // If the time has come, execute it and delete from the list.
+}
 
+/* Process all timeouts, should be called from hardclock or softclock. */
+/* This function takes the next bucket and deals with its contents. */
+void callout_process(sbintime_t now) {
+  ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
+
+  struct callout_head head = ci.heads[ci.current_position];
+  struct callout_head newHead;
+  TAILQ_INIT(&newHead);
+
+
+  struct callout* current;
+  TAILQ_FOREACH(current, &head, c_link) {
+    // We deal with the next element if the currrent one is not the tail.
+    if (current != TAILQ_LAST(&head, callout_head)) { // Is this proper?
+      struct callout* next = TAILQ_NEXT(current, c_link);
+      process_element(next);
+    }
+  }
+
+  // We deal with the first element
+  if (!TAILQ_EMPTY(&head)) {
+    struct callout* first = TAILQ_FIRST(&head);
+    process_element(first);
+  }
 }
