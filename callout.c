@@ -88,12 +88,12 @@ void process_element(struct callout_head* head, struct callout* element) {
 void decrease_timeouts() {
 
   for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++) {
-    log("%s %d", "Processing bucket number: ", i);
+    //log("%s %d", "Processing bucket number: ", i);
     struct callout_head* head = &ci.heads[i];
     struct callout* current;
 
     TAILQ_FOREACH(current, head, c_link) {
-      log("Decreasing from %d to %d. Its address is: %p, and the head address is: %p", current->c_time, current->c_time - 1, current, head);
+      //log("Decreasing from %d to %d. Its address is: %p, and the head address is: %p", current->c_time, current->c_time - 1, current, head);
       current->c_time--;
 
       if (current->c_time < 0) {
@@ -113,33 +113,21 @@ void callout_process(sbintime_t now) {
   decrease_timeouts();
 
   struct callout_head* head = &ci.heads[ci.current_position];
-
   struct callout* current;
-  /* DEBUG */
-  int counter = 0;
-  TAILQ_FOREACH(current, head, c_link)
-  {
-    counter++;
-  }
-  log("Looks like this list has %d elements", counter);
-  /* END OF DEBUG */
+
   TAILQ_FOREACH(current, head, c_link) {
     // Deal with the next element if the currrent one is not the tail.
-    if (current != TAILQ_LAST(head, callout_head)) { // Is this proper? Well, it compiles...
-      log("in if");
+    while (current != TAILQ_LAST(head, callout_head)) { // Is this proper? Well, it compiles...
+      //log("in if");
       struct callout* next = TAILQ_NEXT(current, c_link);
       process_element(head, next);
-    }
-    else
-    {
-      log("in ELSE");
     }
   }
 
   // Deal with the first element
   if (!TAILQ_EMPTY(head)) {
     struct callout* first = TAILQ_FIRST(head);
-    log("Trying to process the head");
+    //log("Trying to process the head");
     process_element(head, first);
   }
 }

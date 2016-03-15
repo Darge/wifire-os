@@ -227,7 +227,7 @@ static bool read_config() {
  */
 
 void bar(void* arg) {
-  kprintf("Someone executed me! Science, bro! After %d ticks.\n", *((int*)arg));
+  kprintf("Someone executed me! After %d ticks.\n", *((int*)arg));
 }
 
 
