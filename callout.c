@@ -59,18 +59,15 @@ void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *
   memset(handle, 0, sizeof(struct callout));
 
   int index = (time + ci.uptime) % NUMBER_OF_CALLOUT_BUCKETS;
-  kprintf("Inserting into index: %d, because current_position = %d, time = %d, uptime = %d\n", index, ci.current_position, time, ci.uptime);
 
   handle->c_time = time + ci.uptime;
   handle->c_func = fn;
   handle->c_arg = arg;
   handle->index = index;
-  callout_active(handle);
+  callout_activate(handle);
 
+  log("Inserting into index: %d, because current_position = %d, time = %d, uptime = %d", index, ci.current_position, time, ci.uptime);
   TAILQ_INSERT_TAIL(&ci.heads[index], handle, c_link);
-
-  uint64_t abc = 0; // this works though.
-  abc++; // TODO: delete it
 }
 
 void callout_stop(callout_t *handle) {
@@ -78,7 +75,7 @@ void callout_stop(callout_t *handle) {
 }
 
 /* 
-  If the time has come, execute the callout function and delete it from the list. 
+  If the time of an event comes, execute the callout function and delete it from the list. 
   Returns true if an element was deleted, false otherwise.
 */
 bool process_element(struct callout_head* head, struct callout* element) {
@@ -96,8 +93,8 @@ bool process_element(struct callout_head* head, struct callout* element) {
 }
 
 /*
-  This function takes the next bucket and deals with its contents.
-  If we decide to run through several buckets at once, just run
+  This function makes a tick takes the next bucket and deals with its contents.
+  If we want to run through several buckets at once, just run
   this function many times.
 */
 void callout_process(sbintime_t now) {

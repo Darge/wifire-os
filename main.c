@@ -226,7 +226,7 @@ static bool read_config() {
  * - The EXL and ERL bits in the Status register are both zero
  */
 
-void bar(void* arg) {
+void callout_foo(void* arg) {
   kprintf("Someone executed me! After %d ticks.\n", *((int*)arg));
 }
 
@@ -332,34 +332,17 @@ int kernel_main() {
 
 
   callout_init();
-  //callout_process(0);
   callout_t callout[10];
   int timeOuts[10] = {2, 5, 3, 1, 6, 3, 7, 10, 5, 3};
   for (int i = 0; i < 10; i++)
 
-    callout_setup(&callout[i], timeOuts[i], bar, (void*)&timeOuts[i]);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  kprintf("calling callout_process()\n");
-  callout_process(0);
-  //callout_process(0);
+    callout_setup(&callout[i], timeOuts[i], callout_foo, (void*)&timeOuts[i]);
 
+  for (int i = 0; i < 10; i++) {
+    kprintf("calling callout_process()\n");
+    callout_process(0);
+    
+  }
 
 
 

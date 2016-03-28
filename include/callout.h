@@ -9,7 +9,7 @@
 
 
 typedef void (*timeout_t)(void *);
-//typedef int64_t sbintime_t;
+//typedef int64_t sbintime_t; // We don't support 64 bit integers yet.
 typedef int sbintime_t;
 
 typedef struct callout {
@@ -18,23 +18,33 @@ typedef struct callout {
     timeout_t c_func;  /* function to call */
     void    *c_arg;     /* function argument */
     uint16_t c_flags;
-    unsigned int index; // TODO change from unsigned int to something better. Also name it better.
-    //...
+    unsigned int index; /* index of bucket this callout is assigned to */
 } callout_t;
 
 #define CALLOUT_ACTIVE      0x0001 /* callout is currently active */
 #define CALLOUT_PENDING     0x0002 /* callout is waiting for timeout */
 
-//#define callout_active(c)     B_SET((c)->c_flags, CALLOUT_ACTIVE)
-#define callout_active(c)     (c)->c_flags |= CALLOUT_ACTIVE
-//#define callout_deactivate(c) B_CLR((c)->c_flags, CALLOUT_ACTIVE)
+#define callout_activate(c) (c)->c_flags |= CALLOUT_ACTIVE
 #define callout_deactivate(c) (c)->c_flags &= ~CALLOUT_ACTIVE
 
 void callout_init();
+
+/*
+  Adds a callout to the queue. After "time" ticks, function "fn" is executed
+  with an argument "arg".
+*/
 void callout_setup(callout_t *handle, sbintime_t time, timeout_t fn, void *arg);
+
+/*
+  Delete an event from the queue without executing it.
+  The element must not have been executed yet.
+*/
 void callout_stop(callout_t *handle);
 
-/* Process all timeouts, should be called from hardclock or softclock. */
+/*
+  This function makes a tick and processes all callouts that are supposed to happen.
+  If an event is executed, it is deleted from the queue.
+*/
 void callout_process(sbintime_t now);
 
 
