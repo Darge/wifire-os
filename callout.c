@@ -42,6 +42,7 @@ TAILQ_HEAD(callout_head, callout);
 typedef struct callout_internal {
   struct callout_head heads[NUMBER_OF_CALLOUT_BUCKETS];
   unsigned int current_position; /* Which of these heads is at current time. */
+  unsigned int uptime; /* Number of ticks since the system started */
 } callout_internal_t;
 
 static callout_internal_t ci;
@@ -57,10 +58,10 @@ void callout_init() {
 void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *arg) {
   memset(handle, 0, sizeof(struct callout));
 
-  int index = (ci.current_position + time) % NUMBER_OF_CALLOUT_BUCKETS;
-  kprintf("Inserting into index: %d, because current_position = %d and time = %d\n", index, ci.current_position, time);
+  int index = (time + ci.uptime) % NUMBER_OF_CALLOUT_BUCKETS;
+  kprintf("Inserting into index: %d, because current_position = %d, time = %d, uptime = %d\n", index, ci.current_position, time, ci.uptime);
 
-  handle->c_time = time;
+  handle->c_time = time + ci.uptime;
   handle->c_func = fn;
   handle->c_arg = arg;
   handle->index = index;
@@ -81,31 +82,17 @@ void callout_stop(callout_t *handle) {
   Returns true if an element was deleted, false otherwise.
 */
 bool process_element(struct callout_head* head, struct callout* element) {
-  if (element->c_time == 0) {
+  if (element->c_time == ci.uptime) {
     TAILQ_REMOVE(head, element, c_link);
     element->c_func(element->c_arg);
     return true;
   }
-  return false;
-}
 
-/* Decreases timeouts in all callouts by one */
-void decrease_timeouts() {
-
-  for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++) {
-    //log("%s %d", "Processing bucket number: ", i);
-    struct callout_head* head = &ci.heads[i];
-    struct callout* current;
-
-    TAILQ_FOREACH(current, head, c_link) {
-      //log("Decreasing from %d to %d. Its address is: %p, and the head address is: %p", current->c_time, current->c_time - 1, current, head);
-      current->c_time--;
-
-      if (current->c_time < 0) {
-        panic("%s", "The timeout on a callout was decreased below zero.");
-      }
-    }
+  if (element->c_time < ci.uptime) {
+    panic("%s", "The time of a callout is smaller than uptime.");
   }
+
+  return false;
 }
 
 /*
@@ -115,7 +102,7 @@ void decrease_timeouts() {
 */
 void callout_process(sbintime_t now) {
   ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
-  decrease_timeouts();
+  ci.uptime++;
 
   struct callout_head* head = &ci.heads[ci.current_position];
   struct callout* current;

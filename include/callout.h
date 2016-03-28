@@ -14,7 +14,7 @@ typedef int sbintime_t;
 
 typedef struct callout {
     TAILQ_ENTRY(callout) c_link;
-    sbintime_t c_time;  /* ticks to the event */
+    sbintime_t c_time;  /* absolute time of the event */
     timeout_t c_func;  /* function to call */
     void    *c_arg;     /* function argument */
     uint16_t c_flags;
