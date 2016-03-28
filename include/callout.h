@@ -10,12 +10,12 @@ typedef void (*timeout_t)(void *);
 typedef int sbintime_t;
 
 typedef struct callout {
-    TAILQ_ENTRY(callout) c_link;
-    sbintime_t c_time;  /* absolute time of the event */
-    timeout_t c_func;  /* function to call */
-    void    *c_arg;     /* function argument */
-    uint16_t c_flags;
-    unsigned int index; /* index of bucket this callout is assigned to */
+  TAILQ_ENTRY(callout) c_link;
+  sbintime_t c_time;  /* absolute time of the event */
+  timeout_t c_func;  /* function to call */
+  void    *c_arg;     /* function argument */
+  uint16_t c_flags;
+  unsigned int index; /* index of bucket this callout is assigned to */
 } callout_t;
 
 #define CALLOUT_ACTIVE      0x0001 /* callout is currently being executed */

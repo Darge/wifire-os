@@ -14,15 +14,15 @@ char str[] = "This is a global string!\n";
 char empty[100]; /* This should land in .bss and get cleared by _start procedure. */
 
 typedef struct cpuinfo {
-    int tlb_entries;
-    int ic_size;
-    int ic_linesize;
-    int ic_nways;
-    int ic_nsets;
-    int dc_size;
-    int dc_linesize;
-    int dc_nways;
-    int dc_nsets;
+  int tlb_entries;
+  int ic_size;
+  int ic_linesize;
+  int ic_nways;
+  int ic_nsets;
+  int dc_size;
+  int dc_linesize;
+  int dc_nways;
+  int dc_nsets;
 } cpuinfo_t;
 
 static cpuinfo_t cpuinfo;
@@ -128,7 +128,7 @@ static void demo_ctx() {
   kprintf("Main context continuing.\n");
 }
 
-/* 
+/*
  * Read configuration register values, interpret and save them into the cpuinfo
  * structure for later use.
  */
@@ -157,18 +157,21 @@ static bool read_config() {
   uint32_t config1 = mips32_getconfig1();
 
   /* FTLB or/and VTLB sizes */
-  cpuinfo.tlb_entries = _mips32r2_ext(config1, CFG1_MMUS_SHIFT, CFG1_MMUS_BITS) + 1;
+  cpuinfo.tlb_entries = _mips32r2_ext(config1, CFG1_MMUS_SHIFT,
+                                      CFG1_MMUS_BITS) + 1;
 
   /* Instruction cache size and organization. */
   cpuinfo.ic_linesize = (config1 & CFG1_IL_MASK) ? 16 : 0;
   cpuinfo.ic_nways = _mips32r2_ext(config1, CFG1_IA_SHIFT, CFG1_IA_BITS) + 1;
-  cpuinfo.ic_nsets = 1 << (_mips32r2_ext(config1, CFG1_IS_SHIFT, CFG1_IS_BITS) + 6);
+  cpuinfo.ic_nsets = 1 << (_mips32r2_ext(config1, CFG1_IS_SHIFT,
+                                         CFG1_IS_BITS) + 6);
   cpuinfo.ic_size = cpuinfo.ic_nways * cpuinfo.ic_linesize * cpuinfo.ic_nsets;
 
   /* Data cache size and organization. */
   cpuinfo.dc_linesize = (config1 & CFG1_DL_MASK) ? 16 : 0;
   cpuinfo.dc_nways = _mips32r2_ext(config1, CFG1_DA_SHIFT, CFG1_DA_BITS) + 1;
-  cpuinfo.dc_nsets = 1 << (_mips32r2_ext(config1, CFG1_DS_SHIFT, CFG1_DS_BITS) + 6);
+  cpuinfo.dc_nsets = 1 << (_mips32r2_ext(config1, CFG1_DS_SHIFT,
+                                         CFG1_DS_BITS) + 6);
   cpuinfo.dc_size = cpuinfo.dc_nways * cpuinfo.dc_linesize * cpuinfo.dc_nsets;
 
   kprintf("TLB Entries: %d\n", cpuinfo.tlb_entries);
@@ -197,7 +200,8 @@ static bool read_config() {
 
   uint32_t config3 = mips32_getconfig3();
 
-  kprintf("Small pages (1KiB) implemented : %s\n", (config3 & CFG3_SP) ? "yes" : "no");
+  kprintf("Small pages (1KiB) implemented : %s\n",
+          (config3 & CFG3_SP) ? "yes" : "no");
 
   return true;
 }
@@ -221,13 +225,13 @@ static bool read_config() {
  *
  * The processor is operating in User Mode when all of the following conditions
  * are true:
- * - The DM bit in the Debug register is a zero 
+ * - The DM bit in the Debug register is a zero
  * - The KSU field in the Status register contains 0b10
  * - The EXL and ERL bits in the Status register are both zero
  */
 
-void callout_foo(void* arg) {
-  kprintf("Someone executed me! After %d ticks.\n", *((int*)arg));
+void callout_foo(void *arg) {
+  kprintf("Someone executed me! After %d ticks.\n", *((int *)arg));
 }
 
 
@@ -261,7 +265,7 @@ int kernel_main() {
   /*
    * Print initial state of control registers.
    */
-   /*
+  /*
   kprintf ("-\n");
   kprintf ("Status   = 0x%08x\n", mips32_get_c0(C0_STATUS));
   kprintf ("IntCtl   = 0x%08x\n", mips32_get_c0(C0_INTCTL));
@@ -336,12 +340,12 @@ int kernel_main() {
   int timeOuts[10] = {2, 5, 3, 1, 6, 3, 7, 10, 5, 3};
   for (int i = 0; i < 10; i++)
 
-    callout_setup(&callout[i], timeOuts[i], callout_foo, (void*)&timeOuts[i]);
+    callout_setup(&callout[i], timeOuts[i], callout_foo, (void *)&timeOuts[i]);
 
   for (int i = 0; i < 10; i++) {
     kprintf("calling callout_process()\n");
     callout_process(0);
-    
+
   }
 
 
@@ -359,5 +363,5 @@ int kernel_main() {
 }
 
 void kernel_exit() {
-  for(;;);
+  for (;;);
 }

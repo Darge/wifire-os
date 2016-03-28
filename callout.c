@@ -39,7 +39,8 @@ void callout_init() {
     TAILQ_INIT(&ci.heads[i]);
 }
 
-void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *arg) {
+void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn,
+                   void *arg) {
   memset(handle, 0, sizeof(struct callout));
 
   int index = (time + ci.uptime) % NUMBER_OF_CALLOUT_BUCKETS;
@@ -50,7 +51,8 @@ void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *
   handle->index = index;
   callout_pending(handle);
 
-  log("Inserting into index: %d, because current_position = %d, time = %d, uptime = %d", index, ci.current_position, time, ci.uptime);
+  log("Inserting into index: %d, because current_position = %d, time = %d, uptime = %d",
+      index, ci.current_position, time, ci.uptime);
   TAILQ_INSERT_TAIL(&ci.heads[index], handle, c_link);
 }
 
@@ -58,11 +60,11 @@ void callout_stop(callout_t *handle) {
   TAILQ_REMOVE(&ci.heads[handle->index], handle, c_link);
 }
 
-/* 
-  If the time of an event comes, execute the callout function and delete it from the list. 
+/*
+  If the time of an event comes, execute the callout function and delete it from the list.
   Returns true if an element was deleted, false otherwise.
 */
-bool process_element(struct callout_head* head, struct callout* element) {
+bool process_element(struct callout_head *head, struct callout *element) {
   if (element->c_time == ci.uptime) {
     callout_active(element);
     callout_not_pending(element);
@@ -76,9 +78,8 @@ bool process_element(struct callout_head* head, struct callout* element) {
     return true;
   }
 
-  if (element->c_time < ci.uptime) {
+  if (element->c_time < ci.uptime)
     panic("%s", "The time of a callout is smaller than uptime.");
-  }
 
   return false;
 }
@@ -92,8 +93,8 @@ void callout_process(sbintime_t now) {
   ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
   ci.uptime++;
 
-  struct callout_head* head = &ci.heads[ci.current_position];
-  struct callout* current;
+  struct callout_head *head = &ci.heads[ci.current_position];
+  struct callout *current;
 
   TAILQ_FOREACH(current, head, c_link) {
     // Deal with the next element if the currrent one is not the tail.
@@ -102,7 +103,7 @@ void callout_process(sbintime_t now) {
       element_deleted = false;
 
       if (current != TAILQ_LAST(head, callout_head)) {
-        struct callout* next = TAILQ_NEXT(current, c_link);
+        struct callout *next = TAILQ_NEXT(current, c_link);
         element_deleted = process_element(head, next);
       }
     } while (element_deleted);
@@ -110,7 +111,7 @@ void callout_process(sbintime_t now) {
 
   // Deal with the first element
   if (!TAILQ_EMPTY(head)) {
-    struct callout* first = TAILQ_FIRST(head);
+    struct callout *first = TAILQ_FIRST(head);
     //log("Trying to process the head");
     process_element(head, first);
   }
