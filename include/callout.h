@@ -5,11 +5,8 @@
 #include "queue.h"
 #include "bitset.h"
 #include "_bitset.h"
-//#include <stdint.h>
-
 
 typedef void (*timeout_t)(void *);
-//typedef int64_t sbintime_t; // We don't support 64 bit integers yet.
 typedef int sbintime_t;
 
 typedef struct callout {
@@ -21,11 +18,14 @@ typedef struct callout {
     unsigned int index; /* index of bucket this callout is assigned to */
 } callout_t;
 
-#define CALLOUT_ACTIVE      0x0001 /* callout is currently active */
+#define CALLOUT_ACTIVE      0x0001 /* callout is currently being executed */
 #define CALLOUT_PENDING     0x0002 /* callout is waiting for timeout */
 
-#define callout_activate(c) (c)->c_flags |= CALLOUT_ACTIVE
-#define callout_deactivate(c) (c)->c_flags &= ~CALLOUT_ACTIVE
+#define callout_active(c) (c)->c_flags |= CALLOUT_ACTIVE
+#define callout_not_active(c) (c)->c_flags &= ~CALLOUT_ACTIVE
+
+#define callout_pending(c) (c)->c_flags |= CALLOUT_PENDING
+#define callout_not_pending(c) (c)->c_flags &= ~CALLOUT_ACTIVE
 
 void callout_init();
 

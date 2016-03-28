@@ -8,7 +8,7 @@
 /*
   Every event is inside one of NUMBER_OF_CALLOUT_BUCKETS buckets.
   The buckets is a cyclic list, but we implement it as an array,
-  thus allowing us to access random elements in constant time.
+  allowing us to access random elements in constant time.
 
   TODO:
   - Change from unsigned int to some proper type. But if it's unsigned,
@@ -18,22 +18,6 @@
     https://gcc.gnu.org/onlinedocs/gcc/Link-Options.html, so I had
     to change sbintime_t from int64_t to int.
     Do we have <stdint.h>? smallclib doesn't have it.
-
-  - what to do with that strange bitset.h and _bitset.h?
-    Edit an external source file?
-    Besides, those bitset functions are weird
-
-  - What do "pending" and "active" mean? What's all about these flags?
-
-  - Keep information about time left (which basically means "ticks"), or simply time?
-    The first one means that we have to decrement every callout. Then callout_process()
-    shouldn't accept any argument.
-    The second one means that we have to know the current time somehow during
-    callout_setup, and not just the delta.
-
-  - Who deallocates the memory for callouts? Does it happen
-    during the function execution? Do I take care of that,
-    or the person that registered the callout?
 */
 
 TAILQ_HEAD(callout_head, callout);
@@ -64,7 +48,7 @@ void callout_setup(struct callout *handle, sbintime_t time, timeout_t fn, void *
   handle->c_func = fn;
   handle->c_arg = arg;
   handle->index = index;
-  callout_activate(handle);
+  callout_pending(handle);
 
   log("Inserting into index: %d, because current_position = %d, time = %d, uptime = %d", index, ci.current_position, time, ci.uptime);
   TAILQ_INSERT_TAIL(&ci.heads[index], handle, c_link);
@@ -80,8 +64,15 @@ void callout_stop(callout_t *handle) {
 */
 bool process_element(struct callout_head* head, struct callout* element) {
   if (element->c_time == ci.uptime) {
-    TAILQ_REMOVE(head, element, c_link);
+    callout_active(element);
+    callout_not_pending(element);
+
     element->c_func(element->c_arg);
+
+    TAILQ_REMOVE(head, element, c_link);
+
+    callout_not_active(element);
+
     return true;
   }
 
