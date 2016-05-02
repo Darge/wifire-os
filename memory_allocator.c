@@ -1,27 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "queue.h"
 #include <assert.h>
+#include "queue.h"
+//#include "include/queue.h"
+//#include "include/memory_allocator.h"
 
-TAILQ_HEAD(sb_head, super_block);
 #define USABLE_SIZE(x) (x - sizeof(super_block))
 #define SIZE_WITH_SUPERBLOCK(x) ((x) + sizeof(super_block))
 #define MOVE_BY_SUPERBLOCK_RIGHT(x) (super_block*)((char*)x + sizeof(super_block))
 #define MOVE_BY_SUPERBLOCK_LEFT(x) (super_block*)((char*)x - sizeof(super_block))
+
+TAILQ_HEAD(sb_head, super_block);
+
 typedef struct memory_range
 {
-	char* start; /* void*? but we can't increment it */
-	size_t size; /* number of bytes which we can use */
+	void* start;
+	size_t size; /* Number of bytes which we can use */
 	struct sb_head sb_head;
 } memory_range;
 
 typedef struct super_block
 {
-	size_t size; /* Including the super_block size. */
+	size_t size; /* Includes the super_block size. */
 	TAILQ_ENTRY(super_block) sb_link;
 } super_block;
 
-void init_memory_range(memory_range* mr, void* start, size_t size)
+void init_memory_range(memory_range* const mr, void* const start, size_t size)
 {
 	mr->start = start;
 	mr->size = size;
@@ -32,7 +36,7 @@ void init_memory_range(memory_range* mr, void* start, size_t size)
 	TAILQ_INSERT_HEAD(&mr->sb_head, sb, sb_link);
 }
 
-super_block* find_entry(struct sb_head* sb_head, size_t total_size)
+super_block* find_entry(struct sb_head* const sb_head, size_t total_size)
 {
 	super_block* current;
 
@@ -45,7 +49,7 @@ super_block* find_entry(struct sb_head* sb_head, size_t total_size)
 	return NULL;
 }
 
-void merge_right(struct sb_head* sb_head, super_block* sb)
+void merge_right(struct sb_head* const sb_head, super_block* const sb)
 {
 	super_block* next = TAILQ_NEXT(sb, sb_link);
 	
@@ -61,7 +65,7 @@ void merge_right(struct sb_head* sb_head, super_block* sb)
 }
 
 /* Insert in a sorted fashion and merge. */
-void insert_free_block(struct sb_head* sb_head, super_block* sb)
+void insert_free_block(struct sb_head* const sb_head, super_block* const sb)
 {
 	if (TAILQ_EMPTY(sb_head))
 	{
@@ -70,7 +74,7 @@ void insert_free_block(struct sb_head* sb_head, super_block* sb)
 	}
 
 	super_block* current = NULL;
-	super_block* best_so_far = NULL; /* New sb will be inserted after this entry. */
+	super_block* best_so_far = NULL; /* sb can be inserted after this entry. */
 	TAILQ_FOREACH(current, sb_head, sb_link)
 	{
 		if (current < sb)
