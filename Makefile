@@ -13,11 +13,14 @@ LDLIBS   = smallclib/smallclib.a
 
 PROGNAME = main
 SOURCES_C = main.c uart_cbus.c interrupts.c clock.c malloc.c context.c \
-	    context-demo.c vm_phys.c
+	    context-demo.c vm_phys.c memory_allocator.c
 SOURCES_ASM = startup.S intr.S context-mips.S mxxtlb_ops.S m32tlb_ops.S
 SOURCES = $(SOURCES_C) $(SOURCES_ASM)
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_ASM:.S=.o)
 DEPFILES = $(SOURCES_C:%.c=.%.D) $(SOURCES_ASM:%.S=.%.D)
+
+a:
+	gcc -Wall memory_allocator.c && echo "Compiled successfully" &&  ./a.out
 
 all: $(DEPFILES) $(PROGNAME).elf
 
