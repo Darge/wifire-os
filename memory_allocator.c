@@ -4,8 +4,8 @@
 #include <assert.h>
 
 TAILQ_HEAD(sb_head, super_block);
-#define USABLE_SIZE(x) x - sizeof(super_block)
-#define SIZE_WITH_SUPERBLOCK(x) x + sizeof(super_block)
+#define USABLE_SIZE(x) (x - sizeof(super_block))
+#define SIZE_WITH_SUPERBLOCK(x) ((x) + sizeof(super_block))
 #define MOVE_BY_SUPERBLOCK_RIGHT(x) (super_block*)((char*)x + sizeof(super_block))
 #define MOVE_BY_SUPERBLOCK_LEFT(x) (super_block*)((char*)x - sizeof(super_block))
 typedef struct memory_range
@@ -78,7 +78,10 @@ void insert_free_block(struct sb_head* sb_head, super_block* sb)
 	}
 
 	if (!best_so_far)
+	{
 		TAILQ_INSERT_HEAD(sb_head, sb, sb_link);
+		merge_right(sb_head, sb);
+	}
 	else
 	{
 		TAILQ_INSERT_AFTER(sb_head, best_so_far, sb, sb_link);
@@ -89,6 +92,9 @@ void insert_free_block(struct sb_head* sb_head, super_block* sb)
 
 void* allocate(memory_range* mr, size_t requested_size)
 {
+	if (requested_size == 0)
+		return NULL;
+
 	/* Search for the first entry in the list that has enough space. */
 	super_block* sb = find_entry(&mr->sb_head, SIZE_WITH_SUPERBLOCK(requested_size));
 	
@@ -97,11 +103,6 @@ void* allocate(memory_range* mr, size_t requested_size)
 	
 	TAILQ_REMOVE(&mr->sb_head, sb, sb_link);
 	size_t size_left = sb->size - SIZE_WITH_SUPERBLOCK(requested_size);
-	printf("sb->size: %zu\n", sb->size);
-	printf("SIZE_WITH_SUPERBLOCK(requested_size):%zu\n", SIZE_WITH_SUPERBLOCK(requested_size));
-	printf("size_left: %zu\n", size_left);
-	assert(sb->size > SIZE_WITH_SUPERBLOCK(requested_size));
-	printf("calculated: %zu\n", sb->size - SIZE_WITH_SUPERBLOCK(requested_size));
 	
 	if (size_left > sizeof(super_block))
 	{
@@ -134,7 +135,7 @@ void print_free_blocks(memory_range* mr)
 
 int main()
 {
-	const int size = 1063;
+	size_t size = 1063;
 	void* ptr = malloc(size);
 	memory_range mr;
 	
@@ -147,11 +148,11 @@ int main()
 
 	print_free_blocks(&mr);
 	
-/*	void* ptr2 = allocate(&mr, 1000+1);
+	void* ptr2 = allocate(&mr, 1000 - sizeof(super_block) + 1);
 	assert(ptr2 == NULL);
 	
 	
-	void* ptr3 = allocate(&mr, 999);
+	void* ptr3 = allocate(&mr, 1000 - 3*sizeof(super_block) - 1);
 	assert(ptr3 != NULL);
 	
 	
@@ -159,13 +160,19 @@ int main()
 	assert(ptr4 != NULL);
 
 
+	void* ptr5 = allocate(&mr, 1);
+	assert(ptr5 == NULL);
+
+
 	deallocate(&mr, ptr3);
 	deallocate(&mr, ptr4);
 	deallocate(&mr, ptr1);
 
-	//void* ptr5 = allocate(&mr, 1024+37);
-	//assert(ptr5 != NULL);
-*/
+	print_free_blocks(&mr);
+
+	void* ptr6 = allocate(&mr, 1063 - sizeof(super_block));
+	assert(ptr6 != NULL);
+
 
 	printf("Finished!\n");
 	
