@@ -20,7 +20,7 @@ OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_ASM:.S=.o)
 DEPFILES = $(SOURCES_C:%.c=.%.D) $(SOURCES_ASM:%.S=.%.D)
 
 a:
-	gcc -Wall memory_allocator.c && echo "Compiled successfully" &&  ./a.out
+	tput reset && gcc -Wall memory_allocator.c && echo "Compiled successfully" &&  ./a.out
 
 all: $(DEPFILES) $(PROGNAME).elf
 
