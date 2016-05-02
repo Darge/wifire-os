@@ -217,9 +217,7 @@ int kernel_main(int argc, char **argv, char **envp) {
 
   dump_cp0();
 
-
-
-  
+  test_memory();
 
 #if 0
   demo_ctx();

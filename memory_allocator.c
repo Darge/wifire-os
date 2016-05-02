@@ -1,31 +1,14 @@
-#include <config.h>
 #include <common.h>
 #include "libkern.h"
 #include "include/queue.h"
 #include "include/memory_allocator.h"
-
 
 #define USABLE_SIZE(x) (x - sizeof(super_block))
 #define SIZE_WITH_SUPERBLOCK(x) ((x) + sizeof(super_block))
 #define MOVE_BY_SUPERBLOCK_RIGHT(x) (super_block*)((char*)x + sizeof(super_block))
 #define MOVE_BY_SUPERBLOCK_LEFT(x) (super_block*)((char*)x - sizeof(super_block))
 
-TAILQ_HEAD(sb_head, super_block);
-
-typedef struct memory_range
-{
-	void* start;
-	size_t size; /* Number of bytes which we can use */
-	struct sb_head sb_head;
-} memory_range;
-
-typedef struct super_block
-{
-	size_t size; /* Includes the super_block size. */
-	TAILQ_ENTRY(super_block) sb_link;
-} super_block;
-
-void init_memory_range(memory_range* const mr, void* const start, size_t size)
+void init_memory_range(memory_range* mr, void* start, size_t size)
 {
 	mr->start = start;
 	mr->size = size;
@@ -36,7 +19,7 @@ void init_memory_range(memory_range* const mr, void* const start, size_t size)
 	TAILQ_INSERT_HEAD(&mr->sb_head, sb, sb_link);
 }
 
-super_block* find_entry(struct sb_head* const sb_head, size_t total_size)
+static super_block* find_entry(struct sb_head* sb_head, size_t total_size)
 {
 	super_block* current;
 
@@ -49,7 +32,7 @@ super_block* find_entry(struct sb_head* const sb_head, size_t total_size)
 	return NULL;
 }
 
-void merge_right(struct sb_head* const sb_head, super_block* const sb)
+static void merge_right(struct sb_head* sb_head, super_block* sb)
 {
 	super_block* next = TAILQ_NEXT(sb, sb_link);
 	
@@ -65,7 +48,7 @@ void merge_right(struct sb_head* const sb_head, super_block* const sb)
 }
 
 /* Insert in a sorted fashion and merge. */
-void insert_free_block(struct sb_head* const sb_head, super_block* const sb)
+static void insert_free_block(struct sb_head* sb_head, super_block* sb)
 {
 	if (TAILQ_EMPTY(sb_head))
 	{
@@ -126,23 +109,23 @@ void deallocate(memory_range* mr, void* memory_ptr)
 	insert_free_block(&mr->sb_head, MOVE_BY_SUPERBLOCK_LEFT(memory_ptr));
 }
 
-void print_free_blocks(memory_range* mr)
+static void print_free_blocks(memory_range* mr)
 {
-	//printf("printing the free blocks list:\n");
+	kprintf("printing the free blocks list:\n");
 	super_block* current;
 	TAILQ_FOREACH(current, &mr->sb_head, sb_link)
 	{
-		//printf("%zu\n", current->size);
+		kprintf("%zu\n", current->size);
 	}
-	//printf("\n");
+	kprintf("\n");
 }
-char array[1063];
 
 void test_memory()
 {
 	size_t size = 1063;
-	//void* ptr = malloc(size);
+	char array[size];
 	void* ptr = &array;
+
 	memory_range mr;
 	
 	init_memory_range(&mr, ptr, size);
@@ -192,8 +175,4 @@ void test_memory()
 
 	void* ptr6 = allocate(&mr, 1063 - sizeof(super_block));
 	if(ptr6 != NULL);
-
-
-	//printf("Finished!\n");
-	
 }
