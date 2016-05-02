@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "queue.h"
-//#include "include/queue.h"
-//#include "include/memory_allocator.h"
+#include <config.h>
+#include <common.h>
+#include "libkern.h"
+#include "include/queue.h"
+#include "include/memory_allocator.h"
+
 
 #define USABLE_SIZE(x) (x - sizeof(super_block))
 #define SIZE_WITH_SUPERBLOCK(x) ((x) + sizeof(super_block))
@@ -128,19 +128,21 @@ void deallocate(memory_range* mr, void* memory_ptr)
 
 void print_free_blocks(memory_range* mr)
 {
-	printf("printing the free blocks list:\n");
+	//printf("printing the free blocks list:\n");
 	super_block* current;
 	TAILQ_FOREACH(current, &mr->sb_head, sb_link)
 	{
-		printf("%zu\n", current->size);
+		//printf("%zu\n", current->size);
 	}
-	printf("\n");
+	//printf("\n");
 }
+char array[1063];
 
-int main()
+void test_memory()
 {
 	size_t size = 1063;
-	void* ptr = malloc(size);
+	//void* ptr = malloc(size);
+	void* ptr = &array;
 	memory_range mr;
 	
 	init_memory_range(&mr, ptr, size);
@@ -148,25 +150,39 @@ int main()
 	print_free_blocks(&mr);
 	
 	void* ptr1 = allocate(&mr, 63);
-	assert(ptr1 != NULL);
+	if(ptr1 != NULL)
+	{
+		kprintf("Something went wrong\n");
+	}
 
 	print_free_blocks(&mr);
 	
 	void* ptr2 = allocate(&mr, 1000 - sizeof(super_block) + 1);
-	assert(ptr2 == NULL);
+	if(ptr2 == NULL)
+	{
+		kprintf("Something went wrong\n");
+	}
 	
 	
 	void* ptr3 = allocate(&mr, 1000 - 3*sizeof(super_block) - 1);
-	assert(ptr3 != NULL);
+	if(ptr3 != NULL)
+	{
+		kprintf("Something went wrong\n");
+	}
 	
 	
 	void* ptr4 = allocate(&mr, 1);
-	assert(ptr4 != NULL);
+	if(ptr4 != NULL)
+	{
+		kprintf("Something went wrong\n");
+	}
 
 
 	void* ptr5 = allocate(&mr, 1);
-	assert(ptr5 == NULL);
-
+	if(ptr5 == NULL)
+	{
+		kprintf("Something went wrong\n");
+	}
 
 	deallocate(&mr, ptr3);
 	deallocate(&mr, ptr4);
@@ -175,10 +191,9 @@ int main()
 	print_free_blocks(&mr);
 
 	void* ptr6 = allocate(&mr, 1063 - sizeof(super_block));
-	assert(ptr6 != NULL);
+	if(ptr6 != NULL);
 
 
-	printf("Finished!\n");
+	//printf("Finished!\n");
 	
-	return 0;
 }
