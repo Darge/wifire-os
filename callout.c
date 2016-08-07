@@ -81,6 +81,8 @@ void callout_process(sbintime_t now) {
   ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
   ci.uptime++;
 
+  log("%d", (int)ci.uptime);
+
   struct callout_head *head = &ci.heads[ci.current_position];
   callout_t *current;
 
