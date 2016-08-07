@@ -41,9 +41,16 @@ general_exception:
         mfc0    $k0, C0_CAUSE
         andi    $k0, $k0, CR_X_MASK
         srl     $k0, $k0, CR_X_SHIFT
+
+        /* TEMPORARY. Will change it if this approach is accepted. */
+        beq $k0, 13, irq_yield
+        nop
+        /* END OF TEMPORARY */
+
         li      $k1, EXC_SYS
         beq     $k1, $k0, 2f
         nop
+
 
         la      $k1, general_exception_table
         sll     $k0, $k0, 2   /* Multiply exc_code by sizeof(void *) */  
@@ -98,13 +105,22 @@ irq6:
 
         .org 0x2e0
 irq7:
-        la      $k1,hardclock
+        la $k1, hardclock
         j       irq_handler
         nop
 
         .org 0x300
 
-#define REG_STACK_STORE_SIZE 76
+irq_yield:
+        mfc0 $k0, $14
+        addi $k0, $k0, 4
+        mtc0 $k0, $14
+
+        la $k1, sched_switch
+        j irq_handler
+        nop
+
+#define REG_STACK_STORE_SIZE 84
 
         .set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
 
@@ -145,11 +161,31 @@ irq_handler:
         mfhi    $k0
         sw      $k0, 72($sp)
 
+        mfc0    $k0, $14
+        sw      $k0, 76($sp)
+
+        lw $k0, cs_level
+        addi $k0, 1
+        la $t0, cs_level
+        sw $k0, ($t0)
+
         /* Call the C routine. */
         jalr    $k1
         nop
 
         /* Restore registers. */
+
+        lw $k0, cs_level
+        addi $k0, -1
+        la $t0, cs_level
+        sw $k0, ($t0)
+
+        bne $k0, $zero, cs_error
+        nop
+
+        lw      $k0, 76($sp)
+        mtc0    $k0, $14    
+
         lw      $k0, 72($sp)
         mthi    $k0
         lw      $k0, 68($sp)

@@ -15,13 +15,23 @@ typedef struct thread {
   ctx_t td_context;
   vm_page_t *td_stack;
   enum {
-    TDS_INACTIVE = 0x0,
+    TDS_NEW = 0x0,
+    TDS_INACTIVE,
     TDS_WAITING,
     TDS_READY,
     TDS_RUNNING
   } td_state;
 } thread_t;
 
+extern thread_t *td_running;
+
 _Noreturn void thread_init(void (*fn)(), int argc, ...);
 
-#endif
+/* Returns the old running thread. */
+thread_t* thread_switch_to(thread_t *td_ready);
+
+thread_t *thread_create(void (*fn)());
+
+void thread_delete(thread_t *td);
+
+#endif // __THREAD_H__

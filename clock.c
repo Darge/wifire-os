@@ -3,12 +3,16 @@
 #include <interrupts.h>
 #include <mips.h>
 #include <clock.h>
+#include <callout.h>
+#include <libkern.h>
+#include <mutex.h>
+#include <sched.h>
 
 /* This counter is incremented every millisecond. */
 static volatile uint32_t timer_ms_count;
 
 void clock_init() {
-  intr_disable();
+  cs_enter();
 
   mips32_set_c0(C0_COUNT, 0);
   mips32_set_c0(C0_COMPARE, TICKS_PER_MS);
@@ -19,7 +23,7 @@ void clock_init() {
   mips32_bs_c0(C0_STATUS, SR_IM7);
 
   /* It is safe now to re-enable interrupts. */
-  intr_enable();
+  cs_leave();
 }
 
 uint32_t clock_get_ms() {
@@ -46,4 +50,10 @@ void hardclock() {
 
   /* Set compare register. */
   mips32_set_c0(C0_COMPARE, compare);
+  callout_process();
+}
+
+/* whats wrong with the symbols? */
+void fooooooo() {
+    sched_switch();
 }

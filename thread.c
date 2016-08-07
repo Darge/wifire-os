@@ -4,7 +4,7 @@
 #include <context.h>
 #include <interrupts.h>
 
-static thread_t *td_running = NULL;
+thread_t *td_running = NULL;
 
 static MALLOC_DEFINE(td_pool, "kernel threads pool");
 
@@ -20,7 +20,7 @@ _Noreturn void thread_init(void (*fn)(), int argc, ...) {
   ctx_init(&td_running->td_context, kernel_exit,
            (void *)PG_VADDR_END(td_running->td_stack));
 
-  kprintf("[thread] Activating first thread at %p!\n", td_running);
+  log("[thread] Activating first thread at %p.", td_running);
   /* TODO: How to pass arguments to called function? */
   ctx_call(&td_running->td_context, fn);
 }
@@ -28,7 +28,7 @@ _Noreturn void thread_init(void (*fn)(), int argc, ...) {
 thread_t *thread_create(void (*fn)()) {
   thread_t *td = kmalloc(td_pool, sizeof(thread_t), M_ZERO);
   td->td_stack = pm_alloc(1);
-  td->td_state = TDS_READY;
+  td->td_state = TDS_NEW;
   ctx_init(&td->td_context, fn, (void *)PG_VADDR_END(td->td_stack));
   return td;
 }
@@ -40,12 +40,25 @@ void thread_delete(thread_t *td) {
   kfree(td_pool, td);
 }
 
-void thread_switch_to(thread_t *td_ready) {
+thread_t* thread_switch_to(thread_t *td_ready) {
   /* TODO: This must be done with interrupts disabled! */
+  log("Switching threads from %p to %p.", td_running, td_ready);
+  assert(td_running != td_ready);
+
+  bool first_time = (td_ready->td_state == TDS_NEW);
   swap(td_running, td_ready);
   td_running->td_state = TDS_RUNNING;
   td_ready->td_state = TDS_READY;
-  ctx_switch(&td_ready->td_context, &td_running->td_context);
+  if (first_time) {
+    log("ctx_switch_interrupt()");
+    ctx_switch_interrupt(&td_ready->td_context, &td_running->td_context);
+  }
+  else {
+    log("ctx_switch()");
+    ctx_switch(&td_ready->td_context, &td_running->td_context);
+
+  }
+  return td_ready;
 }
 
 #ifdef _KERNELSPACE
