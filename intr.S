@@ -41,6 +41,12 @@ general_exception:
         mfc0    $k0, C0_CAUSE
         andi    $k0, $k0, CR_X_MASK
         srl     $k0, $k0, CR_X_SHIFT
+
+        /* TEMPORARY. Will change it if this approach is accepted. */
+        beq $k0, 13, irq_yield
+        nop
+        /* END OF TEMPORARY */
+
         li      $k1, EXC_SYS
         beq     $k1, $k0, 2f
         nop
@@ -104,7 +110,16 @@ irq7:
 
         .org 0x300
 
-#define REG_STACK_STORE_SIZE 76
+irq_yield:
+        mfc0    $k0, C0_EPC
+        addi    $k0, $k0, 4
+        mtc0    $k0, C0_EPC
+
+        la      $k1, sched_switch
+        j       irq_handler
+        nop
+
+#define REG_STACK_STORE_SIZE 128
 
         .set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
 
@@ -145,11 +160,45 @@ irq_handler:
         mfhi    $k0
         sw      $k0, 72($sp)
 
+        mfc0    $k0, C0_EPC
+        sw      $k0, 76($sp)
+
+        sw      $gp, 80($sp)
+        sw      $fp, 84($sp)
+
+        sw      $s0, 88($sp)
+        sw      $s1, 92($sp)
+        sw      $s2, 96($sp)
+        sw      $s3, 100($sp)
+        sw      $s4, 104($sp)
+        sw      $s5, 108($sp)
+        sw      $s6, 112($sp)
+        sw      $s7, 116($sp)
+
         /* Call the C routine. */
         jalr    $k1
         nop
 
+
+new_thread:
         /* Restore registers. */
+
+        lw      $s7, 116($sp)
+        lw      $s6, 112($sp)
+        lw      $s3, 100($sp)
+        lw      $s5, 108($sp)
+        lw      $s4, 104($sp)
+        lw      $s2, 96($sp)
+        lw      $s1, 92($sp)
+        lw      $s0, 88($sp)
+
+
+        lw      $fp, 84($sp)
+        lw      $gp, 80($sp)
+
+        lw      $k0, 76($sp)
+        mtc0    $k0, C0_EPC    
+
         lw      $k0, 72($sp)
         mthi    $k0
         lw      $k0, 68($sp)

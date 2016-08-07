@@ -22,6 +22,14 @@ typedef struct thread {
   } td_state;
 } thread_t;
 
+extern thread_t *td_running;
+
 _Noreturn void thread_init(void (*fn)(), int argc, ...);
 
-#endif
+void thread_switch_to(thread_t *td_ready);
+
+thread_t *thread_create(void (*fn)());
+
+void thread_delete(thread_t *td);
+
+#endif // __THREAD_H__

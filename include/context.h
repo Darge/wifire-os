@@ -20,13 +20,17 @@ typedef struct stack {
 typedef struct ctx {
   union {
     struct {
+      intptr_t t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
+      intptr_t a0, a1, a2, a3;
+      intptr_t v0, v1;
       intptr_t ra;
-      intptr_t fp;
-      intptr_t sp;
-      intptr_t gp;
+      intptr_t lo, hi;
+      intptr_t epc;
+      intptr_t gp, fp;
       intptr_t s0, s1, s2, s3, s4, s5, s6, s7;
+      intptr_t sp;
     };
-    intptr_t regs[12];
+    intptr_t regs[128/4];
   };
 } ctx_t;
 
@@ -57,7 +61,7 @@ void noreturn ctx_call(const ctx_t *ctx, void *fn);
  * WARNING: The target procedure MUST NOT RETURN. The result of such
  * event is undefined, but will generally restart the target function.
  */
-void ctx_init(ctx_t *ctx, void (*target)(), void *sp);
+void ctx_init(ctx_t *ctx, void (*target)(), void *sp, bool prepare_stack);
 
 /* This function stores the current context to @from, and resumes the
  * context stored in @to. It does not return immediatelly, it returns
