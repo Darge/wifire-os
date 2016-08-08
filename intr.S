@@ -113,7 +113,7 @@ irq7:
 
 #define REG_STACK_STORE_SIZE 76
 
-        //.set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
+        .set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
 
 irq_handler:
         /* Please, no nested interrupts for now. */
