@@ -1,14 +1,12 @@
 #include <asm.h>
 #include <mips/m32c0.h>
 
-        .file "thread.c" // to chyba nn
-
-        .global saved_context
-        .global ctx_saved
-        .data
-ctx_saved: .space 1000
-
         .set	noreorder       // Don't allow the assembler to reorder instructions.
+        .data
+//        .globl place_for_ctx
+//        //.extern place_for_ctx, 200
+//place_for_ctx: .word 0:30
+
 
         .local tlb_refill
         .local cache_error
@@ -126,7 +124,7 @@ irq_handler:
          * s and sp registers are saved by compiler-generated
          * procedure entry, if the procedure modifies them.
          */
-        la      $at, ctx_saved
+        la      $at, (place_for_ctx)
         sw      $t0, ($at)
         sw      $t1, 4($at)
         sw      $t2, 8($at)
