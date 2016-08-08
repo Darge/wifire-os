@@ -64,4 +64,9 @@ void ctx_init(ctx_t *ctx, void (*target)(), void *sp);
  * only when the @from context is resumed. */
 void ctx_switch(ctx_t *from, ctx_t *to);
 
+void ctx_switch_interrupt(ctx_t *from, ctx_t *to);
+uint32_t ctx_save_interrupt(ctx_t *ctx) __attribute__((warn_unused_result));
+void noreturn ctx_load_interrupt(const ctx_t *ctx);
+
+
 #endif // __CONTEXT_H__

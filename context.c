@@ -1,6 +1,8 @@
 #include <libkern.h>
 #include <context.h>
 
+int place_for_ctx[100];
+
 void ctx_init(ctx_t *ctx, void (*target)(), void *sp) {
   register void *gp asm("$gp");
 
@@ -13,4 +15,9 @@ void ctx_init(ctx_t *ctx, void (*target)(), void *sp) {
 void ctx_switch(ctx_t *from, ctx_t *to) {
   if (!ctx_save(from))
     ctx_load(to);
+}
+
+void ctx_switch_interrupt(ctx_t *from, ctx_t *to) {
+  if (!ctx_save_interrupt(from))
+    ctx_load_interrupt(to);
 }

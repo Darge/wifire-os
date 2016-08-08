@@ -6,6 +6,8 @@
 
 thread_t *td_running = NULL;
 
+int64_t saved_context[20];
+
 static MALLOC_DEFINE(td_pool, "kernel threads pool");
 
 _Noreturn void thread_init(void (*fn)(), int argc, ...) {
@@ -49,6 +51,19 @@ thread_t* thread_switch_to(thread_t *td_ready) {
   td_running->td_state = TDS_RUNNING;
   td_ready->td_state = TDS_READY;
   ctx_switch(&td_ready->td_context, &td_running->td_context);
+
+  return td_ready;
+}
+
+thread_t* thread_switch_to_interrupt(thread_t *td_ready) {
+  /* TODO: This must be done with interrupts disabled! */
+  log("Switching threads from %p to %p.", td_running, td_ready);
+  assert(td_running != td_ready);
+
+  swap(td_running, td_ready);
+  td_running->td_state = TDS_RUNNING;
+  td_ready->td_state = TDS_READY;
+  ctx_switch_interrupt(&td_ready->td_context, &td_running->td_context);
 
   return td_ready;
 }

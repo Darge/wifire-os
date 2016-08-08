@@ -24,11 +24,14 @@ typedef struct thread {
 } thread_t;
 
 extern thread_t *td_running;
+extern int64_t saved_context[20];
 
 _Noreturn void thread_init(void (*fn)(), int argc, ...);
 
 /* Returns the old running thread. */
 thread_t* thread_switch_to(thread_t *td_ready);
+
+thread_t* thread_switch_to_interrupt(thread_t *td_ready);
 
 thread_t *thread_create(void (*fn)());
 

@@ -20,10 +20,18 @@ static thread_t* sched_choose() {
 }
 
 void sched_preempt() {
-    log("Preempting.");
-    callout_setup(&callout[(current_callout+1)%2;], 5, sched_preempt, NULL);
-    current_callout = (current_callout+1)%2;;
-    sched_yield();
+  log("Preempting.");
+  callout_setup(&callout[(current_callout+1)%2], 5, sched_preempt, NULL);
+  current_callout = (current_callout+1)%2;;
+    
+
+  thread_t* current_td = td_running;
+    thread_t* new_td = sched_choose();
+
+  if (!new_td)
+    return;
+  sched_add(current_td);
+  thread_switch_to_interrupt(new_td);
 }
 
 void sched_run() {
