@@ -120,7 +120,7 @@ irq_handler:
         di
 
         /*
-         * Save registers on the stack.
+         * Save registers.
          * Saving all t, a and v registers, as well as LO and HI.
          * k registers do not require saving.
          * s and sp registers are saved by compiler-generated
