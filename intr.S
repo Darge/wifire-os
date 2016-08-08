@@ -1,6 +1,13 @@
 #include <asm.h>
 #include <mips/m32c0.h>
 
+        .file "thread.c" // to chyba nn
+
+        .global saved_context
+        .global ctx_saved
+        .data
+ctx_saved: .space 1000
+
         .set	noreorder       // Don't allow the assembler to reorder instructions.
 
         .local tlb_refill
@@ -106,7 +113,7 @@ irq7:
 
 #define REG_STACK_STORE_SIZE 76
 
-        .set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
+        //.set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
 
 irq_handler:
         /* Please, no nested interrupts for now. */
@@ -122,56 +129,57 @@ irq_handler:
          * s and sp registers are saved by compiler-generated
          * procedure entry, if the procedure modifies them.
          */
-        sw      $t0, ($sp)
-        sw      $t1, 4($sp)
-        sw      $t2, 8($sp)
-        sw      $t3, 12($sp)
-        sw      $t4, 16($sp)
-        sw      $t5, 20($sp)
-        sw      $t6, 24($sp)
-        sw      $t7, 28($sp)
-        sw      $t8, 32($sp)
-        sw      $t9, 36($sp)
-        sw      $a0, 40($sp)
-        sw      $a1, 44($sp)
-        sw      $a2, 48($sp)
-        sw      $a3, 52($sp)
-        sw      $v0, 56($sp)
-        sw      $v1, 60($sp)
-        sw      $ra, 64($sp)
+        la      $at, ctx_saved
+        sw      $t0, ($at)
+        sw      $t1, 4($at)
+        sw      $t2, 8($at)
+        sw      $t3, 12($at)
+        sw      $t4, 16($at)
+        sw      $t5, 20($at)
+        sw      $t6, 24($at)
+        sw      $t7, 28($at)
+        sw      $t8, 32($at)
+        sw      $t9, 36($at)
+        sw      $a0, 40($at)
+        sw      $a1, 44($at)
+        sw      $a2, 48($at)
+        sw      $a3, 52($at)
+        sw      $v0, 56($at)
+        sw      $v1, 60($at)
+        sw      $ra, 64($at)
 
         mflo    $k0
-        sw      $k0, 68($sp)
+        sw      $k0, 68($at)
         mfhi    $k0
-        sw      $k0, 72($sp)
+        sw      $k0, 72($at)
 
         /* Call the C routine. */
         jalr    $k1
         nop
 
         /* Restore registers. */
-        lw      $k0, 72($sp)
+        lw      $k0, 72($at)
         mthi    $k0
-        lw      $k0, 68($sp)
+        lw      $k0, 68($at)
         mtlo    $k0
 
-        lw      $ra, 64($sp)
-        lw      $v1, 60($sp)
-        lw      $v0, 56($sp)
-        lw      $a3, 52($sp)
-        lw      $a2, 48($sp)
-        lw      $a1, 44($sp)
-        lw      $a0, 40($sp)
-        lw      $t9, 36($sp)
-        lw      $t8, 32($sp)
-        lw      $t7, 28($sp)
-        lw      $t6, 24($sp)
-        lw      $t5, 20($sp)
-        lw      $t4, 16($sp)
-        lw      $t3, 12($sp)
-        lw      $t2, 8($sp)
-        lw      $t1, 4($sp)
-        lw      $t0, ($sp)
+        lw      $ra, 64($at)
+        lw      $v1, 60($at)
+        lw      $v0, 56($at)
+        lw      $a3, 52($at)
+        lw      $a2, 48($at)
+        lw      $a1, 44($at)
+        lw      $a0, 40($at)
+        lw      $t9, 36($at)
+        lw      $t8, 32($at)
+        lw      $t7, 28($at)
+        lw      $t6, 24($at)
+        lw      $t5, 20($at)
+        lw      $t4, 16($at)
+        lw      $t3, 12($at)
+        lw      $t2, 8($at)
+        lw      $t1, 4($at)
+        lw      $t0, ($at)
 
         /* Free stack frame */
         addu    $sp, $sp, REG_STACK_STORE_SIZE
