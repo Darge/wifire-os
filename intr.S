@@ -150,11 +150,32 @@ irq_handler:
         mfhi    $k0
         sw      $k0, 72($at)
 
+        sw      $s0, 76($at)
+        sw      $s1, 80($at)
+        sw      $s2, 84($at)
+        sw      $s3, 88($at)
+        sw      $s4, 92($at)
+        sw      $s5, 96($at)
+        sw      $s6, 100($at)
+        sw      $s7, 104($at)
+        sw      $sp, 108($at)
+
         /* Call the C routine. */
         jalr    $k1
         nop
 
         /* Restore registers. */
+
+        sw      $sp, 108($at)
+        sw      $s7, 104($at)
+        sw      $s6, 100($at)
+        sw      $s5, 96($at)
+        sw      $s4, 92($at)
+        sw      $s3, 88($at)
+        sw      $s2, 84($at)
+        sw      $s1, 80($at)
+        sw      $s0, 76($at)
+
         lw      $k0, 72($at)
         mthi    $k0
         lw      $k0, 68($at)
