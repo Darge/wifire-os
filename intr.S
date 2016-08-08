@@ -119,9 +119,6 @@ irq_handler:
         /* Please, no nested interrupts for now. */
         di
 
-        /* Allocate space for register storage on the stack. */
-        subu    $sp, $sp, REG_STACK_STORE_SIZE
-
         /*
          * Save registers on the stack.
          * Saving all t, a and v registers, as well as LO and HI.
@@ -180,9 +177,6 @@ irq_handler:
         lw      $t2, 8($at)
         lw      $t1, 4($at)
         lw      $t0, ($at)
-
-        /* Free stack frame */
-        addu    $sp, $sp, REG_STACK_STORE_SIZE
 
         /* Re-enable interrupts. */
         ei
