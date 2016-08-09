@@ -78,6 +78,7 @@ static bool process_element(struct callout_head *head, callout_t *element) {
   this function many times.
 */
 void callout_process(sbintime_t now) {
+  log("callout_process is executed");
   ci.current_position = (ci.current_position + 1) % NUMBER_OF_CALLOUT_BUCKETS;
   ci.uptime++;
 

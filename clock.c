@@ -4,6 +4,7 @@
 #include <mips.h>
 #include <clock.h>
 #include <callout.h>
+#include <libkern.h>
 
 /* This counter is incremented every millisecond. */
 static volatile uint32_t timer_ms_count;
@@ -28,6 +29,7 @@ uint32_t clock_get_ms() {
 }
 
 void hardclock() {
+  log("clock is happening");
   uint32_t compare = mips32_get_c0(C0_COMPARE);
   uint32_t count = mips32_get_c0(C0_COUNT);
   int32_t diff = compare - count;
