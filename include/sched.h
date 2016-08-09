@@ -9,7 +9,6 @@ void sched_init();
 
 void sched_add(thread_t *td);
 
-void sched_yield();
-void sched_interrupt();
+void sched_switch();
 
 #endif // __SCHED_H__

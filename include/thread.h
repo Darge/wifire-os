@@ -16,7 +16,8 @@ typedef struct thread {
   ctx_t td_context;
   vm_page_t *td_stack;
   enum {
-    TDS_INACTIVE = 0x0,
+    TDS_NEW = 0x0,
+    TDS_INACTIVE,
     TDS_WAITING,
     TDS_READY,
     TDS_RUNNING
@@ -29,7 +30,6 @@ _Noreturn void thread_init(void (*fn)(), int argc, ...);
 
 /* Returns the old running thread. */
 thread_t* thread_switch_to(thread_t *td_ready);
-thread_t* thread_switch_to_interrupt(thread_t *td_ready);
 
 thread_t *thread_create(void (*fn)());
 

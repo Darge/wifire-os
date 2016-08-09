@@ -14,18 +14,11 @@ void sched_init() {
   runq_init(&runq);
 }
 
-static bool firsttime = true;
 void sched_preempt() {
   log("Preempting.");
    callout_setup(&callout[current_callout+1], 5, sched_preempt, NULL);
   current_callout = current_callout+1;
-  if (firsttime == true)
-  {
-    firsttime = false;
-    sched_interrupt();
-  }
-  else
-    sched_yield();
+  sched_switch();
 }
 
 static thread_t* sched_choose() {
@@ -53,20 +46,20 @@ void sched_add(thread_t *td) {
   runq_add(&runq, td);
 }
 
-void sched_interrupt() {
-  log("A thread has been interrupted.");
-  thread_t* current_td = td_running;
-  thread_t* new_td = sched_choose();
+// void sched_interrupt() {
+//   log("A thread has been interrupted.");
+//   thread_t* current_td = td_running;
+//   thread_t* new_td = sched_choose();
 
-  if (!new_td)
-    //return;
-    panic("new_td is NULL");
+//   if (!new_td)
+//     //return;
+//     panic("new_td is NULL");
 
-  sched_add(current_td);
-  thread_switch_to_interrupt(new_td);
-}
+//   sched_add(current_td);
+//   thread_switch_to_interrupt(new_td);
+// }
 
-void sched_yield() {
+void sched_switch() {
   log("A thread has yielded.");
   thread_t* current_td = td_running;
   thread_t* new_td = sched_choose();
