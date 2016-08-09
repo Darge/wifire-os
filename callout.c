@@ -48,22 +48,6 @@ void callout_stop(callout_t *handle) {
   TAILQ_REMOVE(&ci.heads[handle->index], handle, c_link);
 }
 
-// static void callout_debug() {
-//   log("entering callout_debug");
-
-//   for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++)
-//   {
-//     int tmp_current_position = i;
-//     struct callout_head *head = &ci.heads[tmp_current_position];
-//     callout_t *current;
-
-//     TAILQ_FOREACH(current, head, c_link) {
-//       log("handling an element");
-//     }
-//   }
-//   log("leaving callout_debug");
-// }
-
 /*
   If the time of an event comes, execute the callout function and delete it from the list.
   Returns true if an element was deleted, false otherwise.
@@ -75,7 +59,6 @@ static bool process_element(struct callout_head *head, callout_t *element) {
 
     TAILQ_REMOVE(head, element, c_link);
     element->c_func(element->c_arg);
-
 
     callout_not_active(element);
     return true;
