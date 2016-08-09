@@ -23,8 +23,8 @@ static thread_t* sched_choose() {
 
 void sched_switch() {
   log("Switching a thread.");
-  callout_setup(&callout[(current_callout+1)%2], 5, sched_switch, NULL);
   current_callout = (current_callout+1)%2;
+  callout_setup(&callout[current_callout], 5, sched_switch, NULL);
   thread_t* current_td = td_running;
   thread_t* new_td = sched_choose();
 
@@ -35,6 +35,13 @@ void sched_switch() {
 
   sched_add(current_td);
   thread_switch_to(new_td);
+}
+
+void foo() {
+  while(true) {
+    log("Idle thread.");
+    for (int i = 0; i < 20000; i++) {};
+  }
 }
 
 void sched_run() {
@@ -48,6 +55,7 @@ void sched_run() {
   callout_setup(&callout[current_callout], 5, sched_switch, NULL);
 
   thread_switch_to(new_td);
+  panic("We shouldn't be here");
 }
 
 void sched_add(thread_t *td) {
@@ -83,8 +91,9 @@ static void demo_thread_3() {
   }
 }
 
-int main() {
-  sched_init();
+void bar()
+{
+      sched_init();
 
   thread_t *td1 = thread_create(demo_thread_1);
   thread_t *td2 = thread_create(demo_thread_2);
@@ -97,6 +106,10 @@ int main() {
   sched_run();
 
   panic("We should never get to this place.\n");
+}
+
+int main() {
+    thread_init(bar, 0);
   return 0;
 }
 
