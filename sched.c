@@ -14,13 +14,6 @@ void sched_init() {
   runq_init(&runq);
 }
 
-void sched_preempt() {
-  log("Preempting.");
-  callout_setup(&callout[current_callout+1], 5, sched_preempt, NULL);
-  current_callout = current_callout+1;
-  sched_switch();
-}
-
 static thread_t* sched_choose() {
   thread_t* td = runq_choose(&runq);
   if (td)
@@ -28,26 +21,10 @@ static thread_t* sched_choose() {
   return td;
 }
 
-void sched_run() {
-  log("Scheduler is run.");
-  thread_t* new_td = sched_choose();
-
-  if (!new_td)
-    panic("There are no threads to be executed\n");
-
-  current_callout = 0;
-  callout_setup(&callout[current_callout], 5, sched_preempt, NULL);
-
-  thread_switch_to(new_td);
-}
-
-void sched_add(thread_t *td) {
-  log("Adding a thread to the runqueue.");
-  runq_add(&runq, td);
-}
-
 void sched_switch() {
-  log("A thread has yielded.");
+  log("Switching a thread.");
+  callout_setup(&callout[current_callout+1], 5, sched_switch, NULL);
+  current_callout = current_callout+1;
   thread_t* current_td = td_running;
   thread_t* new_td = sched_choose();
 
@@ -58,6 +35,24 @@ void sched_switch() {
 
   sched_add(current_td);
   thread_switch_to(new_td);
+}
+
+void sched_run() {
+  log("Scheduler is run.");
+  thread_t* new_td = sched_choose();
+
+  if (!new_td)
+    panic("There are no threads to be executed\n");
+
+  current_callout = 0;
+  callout_setup(&callout[current_callout], 5, sched_switch, NULL);
+
+  thread_switch_to(new_td);
+}
+
+void sched_add(thread_t *td) {
+  log("Adding a thread to the runqueue.");
+  runq_add(&runq, td);
 }
 
 
