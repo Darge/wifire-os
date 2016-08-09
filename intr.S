@@ -148,12 +148,25 @@ irq_handler:
         mfc0    $k0, $14
         sw      $k0, 76($sp)
 
+        lw $k0, cs_level
+        addi $k0, 1
+        la $t0, cs_level
+        sw $k0, ($t0)
 
         /* Call the C routine. */
         jalr    $k1
         nop
 
         /* Restore registers. */
+
+        lw $k0, cs_level
+        addi $k0, -1
+        la $t0, cs_level
+        sw $k0, ($t0)
+
+        bne $k0, $zero, cs_error
+        nop
+
         lw      $k0, 76($sp)
         mtc0    $k0, $14    
 

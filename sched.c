@@ -5,6 +5,7 @@
 #include <thread.h>
 #include <callout.h>
 #include <interrupts.h>
+#include <mutex.h>
 
 static runq_t runq;
 static callout_t callout[2];
@@ -36,6 +37,13 @@ static void sched_switch(bool yield) {
 
   sched_add(current_td);
   thread_switch_to(new_td);
+
+  if (yield) {
+    /* Threads that haven't yielded enable the interrupts when their
+       context is being loaded. Threads that have yielded don't do that,
+       so we have to do it here. */
+    cs_leave();
+  }
 }
 
 void sched_preempt() {
@@ -44,12 +52,13 @@ void sched_preempt() {
 }
 
 void sched_yield() {
+  cs_enter();
   log("Yielding a thread.");
-  intr_disable();
   sched_switch(true);
 }
 
 void sched_run() {
+  cs_enter();
   log("Scheduler is run.");
   thread_t* new_td = sched_choose();
 
@@ -65,7 +74,9 @@ void sched_run() {
 
 void sched_add(thread_t *td) {
   log("Adding a thread to the runqueue.");
+  cs_enter();
   runq_add(&runq, td);
+  cs_leave();
 }
 
 

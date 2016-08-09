@@ -1,6 +1,7 @@
 #include "asm.h"
 
     .set noreorder
+    .globl cs_error
 
 /* uint32_t ctx_save(ctx_t *ctx) */
 LEAF(ctx_save)
@@ -75,6 +76,15 @@ END(ctx_call)
 /* void ctx_load_interrupt(const ctx_t *ctx) */
 LEAF(ctx_load_interrupt)
 
+
+    lw $k0, cs_level
+    addi $k0, -1
+    la $s0, cs_level
+    sw $k0, ($s0)
+
+    bne $k0, $zero, cs_error
+    nop
+
     lw $ra, ( 0*4)($a0)
     lw $fp, ( 1*4)($a0)
     lw $sp, ( 2*4)($a0)
@@ -101,3 +111,7 @@ LEAF(ctx_load_interrupt)
     nop
 
 END(ctx_load_interrupt)
+
+cs_error:
+    jal kernel_oops
+    nop
