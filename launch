@@ -50,7 +50,7 @@ if __name__ == "__main__":
     for item in OVPSIM_OVERRIDES.items():
         opts += ['--override', '%s=%s' % item]
     if args.debug:
-        opts += ['--port', '1234']
+        opts += ['--port', '1238']
 
     try:
         os.remove('uartCBUS.log')

@@ -170,6 +170,7 @@ irq_handler:
 
         lw      $gp, 116($at)
         lw      $fp, 112($at)
+        
 
         lw      $sp, 108($at)
         lw      $s7, 104($at)

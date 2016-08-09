@@ -45,6 +45,7 @@ void thread_delete(thread_t *td) {
 thread_t* thread_switch_to(thread_t *td_ready) {
   /* TODO: This must be done with interrupts disabled! */
   log("Switching threads from %p to %p.", td_running, td_ready);
+
   assert(td_running != td_ready);
 
   swap(td_running, td_ready);
@@ -56,13 +57,14 @@ thread_t* thread_switch_to(thread_t *td_ready) {
 }
 
 thread_t* thread_switch_to_interrupt(thread_t *td_ready) {
-  /* TODO: This must be done with interrupts disabled! */
+  /* TODO: This must be done with interrupts disabled! */    
   log("Switching threads from %p to %p.", td_running, td_ready);
   assert(td_running != td_ready);
 
   swap(td_running, td_ready);
   td_running->td_state = TDS_RUNNING;
   td_ready->td_state = TDS_READY;
+
   ctx_switch_interrupt(&td_ready->td_context, &td_running->td_context);
 
   return td_ready;

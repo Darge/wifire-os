@@ -20,8 +20,8 @@ static thread_t* sched_choose() {
 }
 
 void sched_preempt() {
-  log("Preempting.");
-  callout_setup(&callout[(current_callout+1)%2], 5, sched_preempt, NULL);
+  //log("Preempting.");
+  callout_setup(&callout[(current_callout+1)%2], 3, sched_preempt, NULL);
   current_callout = (current_callout+1)%2;;
     
 
@@ -31,7 +31,9 @@ void sched_preempt() {
   if (!new_td)
     return;
   sched_add(current_td);
+  //log("entering");
   thread_switch_to_interrupt(new_td);
+  //log("leaving");
 }
 
 void sched_run() {
