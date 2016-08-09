@@ -71,7 +71,7 @@ static void demo_thread_1() {
 }
 
 static void demo_thread_2() {
-  log("entering demo_thread_2");
+  log("entering demo_thread_2");    
   intr_enable();
   while (true) {
     kprintf("demo_thread_2 running\n");
@@ -83,7 +83,7 @@ static void demo_thread_3() {
   intr_enable();
   while (true) {
     kprintf("demo_thread_3 running\n");
-    for (int i = 0; i < 100000; i++) {};
+    for (int i = 0; i < 20000; i++) {};
   }
 }
 
