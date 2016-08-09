@@ -107,9 +107,6 @@ void callout_process(sbintime_t now) {
     do {
       element_deleted = false;
 
-      if (TAILQ_EMPTY(head))
-        panic("aaa");
-
       if (current != TAILQ_LAST(head, callout_head)) {
         callout_t *next = TAILQ_NEXT(current, c_link);
         element_deleted = process_element(head, next);

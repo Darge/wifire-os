@@ -104,7 +104,7 @@ irq7:
 
         .org 0x300
 
-#define REG_STACK_STORE_SIZE 100
+#define REG_STACK_STORE_SIZE 84
 
         .set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
 

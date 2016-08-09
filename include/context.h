@@ -25,11 +25,8 @@ typedef struct ctx {
       intptr_t sp;
       intptr_t gp;
       intptr_t s0, s1, s2, s3, s4, s5, s6, s7;
-      intptr_t t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
-      intptr_t a0, a1, a2, a3;
-      intptr_t v0, v1;
     };
-    intptr_t regs[35];
+    intptr_t regs[12];
   };
 } ctx_t;
 
