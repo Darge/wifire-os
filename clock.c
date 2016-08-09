@@ -3,6 +3,7 @@
 #include <interrupts.h>
 #include <mips.h>
 #include <clock.h>
+#include <callout.h>
 
 /* This counter is incremented every millisecond. */
 static volatile uint32_t timer_ms_count;
@@ -46,4 +47,5 @@ void hardclock() {
 
   /* Set compare register. */
   mips32_set_c0(C0_COMPARE, compare);
+  callout_process(0);
 }

@@ -3,11 +3,21 @@
 #include <runq.h>
 #include "context.h"
 #include <thread.h>
+#include <callout.h>
 
 static runq_t runq;
+static callout_t callout[2];
+static int current_callout = 0;
 
 void sched_init() {
   runq_init(&runq);
+}
+
+void sched_preempt() {
+  log("Preempting.");
+  callout_setup(&callout[(current_callout+1)%2], 5, sched_preempt, NULL);
+  current_callout = (current_callout+1)%2;
+  sched_yield();
 }
 
 static thread_t* sched_choose() {
@@ -22,6 +32,9 @@ void sched_run() {
 
   if (!new_td)
     panic("There are no threads to be executed\n");
+
+  current_callout = 0;
+  callout_setup(&callout[current_callout], 5, sched_preempt, NULL); /* Bad stuff here. */
 
   thread_switch_to(new_td);
 }
@@ -50,21 +63,21 @@ static void demo_thread_1() {
     
   while (true) {
     kprintf("demo_thread_1 running.\n");
-    sched_yield();
+    //sched_yield();
   }
 }
 
 static void demo_thread_2() {
   while (true) {
     kprintf("demo_thread_2 running\n");
-    sched_yield();
+    //sched_yield();
   }
 }
 
 static void demo_thread_3() {
   while (true) {
     kprintf("demo_thread_3 running\n");
-    sched_yield();
+    //sched_yield();
   }
 }
 
