@@ -37,13 +37,6 @@ void sched_switch() {
   thread_switch_to(new_td);
 }
 
-void foo() {
-  while(true) {
-    log("Idle thread.");
-    for (int i = 0; i < 20000; i++) {};
-  }
-}
-
 void sched_run() {
   log("Scheduler is run.");
   thread_t* new_td = sched_choose();
@@ -91,9 +84,8 @@ static void demo_thread_3() {
   }
 }
 
-void bar()
-{
-      sched_init();
+int main() {
+  sched_init();
 
   thread_t *td1 = thread_create(demo_thread_1);
   thread_t *td2 = thread_create(demo_thread_2);
@@ -106,10 +98,6 @@ void bar()
   sched_run();
 
   panic("We should never get to this place.\n");
-}
-
-int main() {
-    thread_init(bar, 0);
   return 0;
 }
 
