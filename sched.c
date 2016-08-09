@@ -7,7 +7,7 @@
 #include <interrupts.h>
 
 static runq_t runq;
-static callout_t callout[2000];
+static callout_t callout[2];
 static int current_callout = 0;
 
 void sched_init() {
@@ -23,8 +23,8 @@ static thread_t* sched_choose() {
 
 void sched_switch() {
   log("Switching a thread.");
-  callout_setup(&callout[current_callout+1], 5, sched_switch, NULL);
-  current_callout = current_callout+1;
+  callout_setup(&callout[(current_callout+1)%2], 5, sched_switch, NULL);
+  current_callout = (current_callout+1)%2;
   thread_t* current_td = td_running;
   thread_t* new_td = sched_choose();
 
