@@ -180,7 +180,6 @@ irq_handler:
         lw      $t1, 4($sp)
         lw      $t0, ($sp)
 
-
         /* Free stack frame */
         addu    $sp, $sp, REG_STACK_STORE_SIZE
 
