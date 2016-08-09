@@ -91,14 +91,13 @@ LEAF(ctx_load_interrupt)
     /*
      * Note that the following will not return from ctx_load, because
      * $ra has been overwritten with the value previously stored by
-     * ctx_store. Instead, it resumes the context, and returns 1
-     * there.
+     * ctx_store. Instead, it resumes the context.
      */
+
     mtc0 $ra, $14
+    ei
+
     eret
     nop
-
-    jr $ra
-    li $v0, 1
 
 END(ctx_load_interrupt)
