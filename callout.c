@@ -82,8 +82,8 @@ static bool process_element(struct callout_head *head, callout_t *element) {
     return true;
   }
 
-  //if (element->c_time < ci.uptime)
-  //  panic("%s", "The time of a callout is smaller than uptime.");
+  if (element->c_time < ci.uptime)
+   panic("%s", "The time of a callout is smaller than uptime.");
 
   return false;
 }
