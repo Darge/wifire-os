@@ -78,7 +78,6 @@ static bool process_element(struct callout_head *head, callout_t *element) {
 
 
     callout_not_active(element);
-    //callout_debug();
     return true;
   }
 
