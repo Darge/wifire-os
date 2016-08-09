@@ -10,5 +10,6 @@ void sched_init();
 void sched_add(thread_t *td);
 
 void sched_yield();
+void sched_interrupt();
 
 #endif // __SCHED_H__

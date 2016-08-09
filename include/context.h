@@ -46,6 +46,10 @@ uint32_t ctx_save(ctx_t *ctx) __attribute__((warn_unused_result));
  */
 void noreturn ctx_load(const ctx_t *ctx);
 
+uint32_t ctx_save_interrupt(ctx_t *ctx) __attribute__((warn_unused_result));
+void noreturn ctx_load_interrupt(const ctx_t *ctx);
+
+
 /*
  * Calls a function in a new context. This function does not return.
  */
@@ -66,5 +70,6 @@ void ctx_init(ctx_t *ctx, void (*target)(), void *sp);
  * context stored in @to. It does not return immediatelly, it returns
  * only when the @from context is resumed. */
 void ctx_switch(ctx_t *from, ctx_t *to);
+void ctx_switch_interrupt(ctx_t *from, ctx_t *to);
 
 #endif // __CONTEXT_H__
