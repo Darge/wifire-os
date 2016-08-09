@@ -7,7 +7,7 @@
 #include <interrupts.h>
 
 static runq_t runq;
-static callout_t callout[200000];
+static callout_t callout[2000];
 static int current_callout = 0;
 
 void sched_init() {

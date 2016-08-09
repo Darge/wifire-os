@@ -52,17 +52,33 @@ void callout_stop(callout_t *handle) {
   If the time of an event comes, execute the callout function and delete it from the list.
   Returns true if an element was deleted, false otherwise.
 */
+static void callout_debug() {
+  log("entering callout_debug");
+
+  for (int i = 0; i < NUMBER_OF_CALLOUT_BUCKETS; i++)
+  {
+    int tmp_current_position = i;
+    struct callout_head *head = &ci.heads[tmp_current_position];
+    callout_t *current;
+
+    TAILQ_FOREACH(current, head, c_link) {
+      log("handling an element");
+    }
+  }
+  log("leaving callout_debug");
+}
+
 static bool process_element(struct callout_head *head, callout_t *element) {
   if (element->c_time == ci.uptime) {
     callout_active(element);
     callout_not_pending(element);
 
+    TAILQ_REMOVE(head, element, c_link);
     element->c_func(element->c_arg);
 
-    TAILQ_REMOVE(head, element, c_link);
 
     callout_not_active(element);
-
+    callout_debug();
     return true;
   }
 
@@ -71,6 +87,7 @@ static bool process_element(struct callout_head *head, callout_t *element) {
 
   return false;
 }
+
 
 /*
   This function makes a tick takes the next bucket and deals with its contents.
@@ -107,6 +124,7 @@ void callout_process(sbintime_t now) {
     //log("Trying to process the head");
     process_element(head, first);
   }
+  log("leaving callout_process");
 }
 
 #ifdef _KERNELSPACE
