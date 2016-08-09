@@ -18,6 +18,23 @@ LEAF(ctx_save)
     sw $s6, (10*4)($a0)
     sw $s7, (11*4)($a0)
 
+    # sw $t0, (12*4)($a0)
+    # sw $t1, (13*4)($a0)
+    # sw $t2, (14*4)($a0)
+    # sw $t3, (15*4)($a0)
+    # sw $t4, (16*4)($a0)
+    # sw $t5, (17*4)($a0)
+    # sw $t6, (18*4)($a0)
+    # sw $t7, (19*4)($a0)
+    # sw $t8, (20*4)($a0)
+    # sw $t9, (21*4)($a0)
+    # #sw $a0, (22*4)($a0)
+    # sw $a1, (23*4)($a0)
+    # sw $a2, (24*4)($a0)
+    # sw $a3, (25*4)($a0)
+    # sw $v0, (26*4)($a0)
+    # sw $v1, (27*4)($a0)
+
     /* Return 0 */
     jr $ra
     move $v0, $zero
@@ -40,6 +57,23 @@ LEAF(ctx_load)
     lw $s6, (10*4)($a0)
     lw $s7, (11*4)($a0)
 
+    # lw $t0, (12*4)($a0)
+    # lw $t1, (13*4)($a0)
+    # lw $t2, (14*4)($a0)
+    # lw $t3, (15*4)($a0)
+    # lw $t4, (16*4)($a0)
+    # lw $t5, (17*4)($a0)
+    # lw $t6, (18*4)($a0)
+    # lw $t7, (19*4)($a0)
+    # lw $t8, (20*4)($a0)
+    # lw $t9, (21*4)($a0)
+    # #lw $a0, (22*4)($a0)
+    # lw $a1, (23*4)($a0)
+    # lw $a2, (24*4)($a0)
+    # lw $a3, (25*4)($a0)
+    # lw $v0, (26*4)($a0)
+    # lw $v1, (27*4)($a0)
+
     /*
      * Note that the following will not return from ctx_load, because
      * $ra has been overwritten with the value previously stored by
@@ -47,7 +81,7 @@ LEAF(ctx_load)
      * there.
      */
     jr $ra
-    li $v0, 1
+    li $v0, 1 # is this needed?
 
 END(ctx_load)
 

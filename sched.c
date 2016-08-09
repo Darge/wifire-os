@@ -16,7 +16,7 @@ void sched_init() {
 
 void sched_preempt() {
   log("Preempting.");
-  callout_setup(&callout[(current_callout+1)%2], 5, sched_preempt, NULL);
+  // callout_setup(&callout[(current_callout+1)%2], 5, sched_preempt, NULL);
   current_callout = (current_callout+1)%2;
   sched_yield();
 }
@@ -52,7 +52,8 @@ void sched_yield() {
   thread_t* new_td = sched_choose();
 
   if (!new_td)
-    return;
+    //return;
+    panic("new_td is NULL");
 
   sched_add(current_td);
   thread_switch_to(new_td);
@@ -62,22 +63,27 @@ void sched_yield() {
 #ifdef _KERNELSPACE
 
 static void demo_thread_1() {
+  log("entering demo_thread_2");
   //intr_enable();
   while (true) {
     kprintf("demo_thread_1 running.\n");
-    for (int i = 0; i < 100000; i++) {};
+    for (int i = 0; i < 50000; i++) {};
     //sched_yield();
   }
 }
 
-// static void demo_thread_2() {
-//   intr_enable();
-//   while (true) {
-//     kprintf("demo_thread_2 running\n");
-//     for (int i = 0; i < 100000; i++) {};
-//     //sched_yield();
-//   }
-// }
+static void demo_thread_2() {
+  log("entering demo_thread_2");
+  //__extension__ ({ asm("lw $k0, demo_thread_"); });
+  //__extension__ ({ asm("mtc0 $k0,$14"); });
+  intr_enable();
+   __extension__ ({ asm("eret"); });
+  while (true) {
+    kprintf("demo_thread_2 running\n");
+    for (int i = 0; i < 50000; i++) {};
+    //sched_yield();
+  }
+}
 
 // static void demo_thread_3() {
 //   intr_enable();
@@ -92,11 +98,11 @@ int main() {
   sched_init();
 
   thread_t *td1 = thread_create(demo_thread_1);
-  //thread_t *td2 = thread_create(demo_thread_2);
+  thread_t *td2 = thread_create(demo_thread_2);
   //thread_t *td3 = thread_create(demo_thread_3);
 
   sched_add(td1);
-  // sched_add(td2);
+  sched_add(td2);
   // sched_add(td3);
 
   sched_run();

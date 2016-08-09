@@ -104,7 +104,7 @@ irq7:
 
         .org 0x300
 
-#define REG_STACK_STORE_SIZE 76
+#define REG_STACK_STORE_SIZE 100
 
         .set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
 
@@ -145,11 +145,18 @@ irq_handler:
         mfhi    $k0
         sw      $k0, 72($sp)
 
+        mfc0    $k0, $14
+        sw      $k0, 76($sp)
+
+
         /* Call the C routine. */
         jalr    $k1
         nop
 
         /* Restore registers. */
+        lw      $k0, 76($sp)
+        mtc0    $k0, $14    
+
         lw      $k0, 72($sp)
         mthi    $k0
         lw      $k0, 68($sp)
@@ -172,6 +179,7 @@ irq_handler:
         lw      $t2, 8($sp)
         lw      $t1, 4($sp)
         lw      $t0, ($sp)
+
 
         /* Free stack frame */
         addu    $sp, $sp, REG_STACK_STORE_SIZE
