@@ -21,12 +21,13 @@ static thread_t* sched_choose() {
   return td;
 }
 
-void sched_switch() {
-  log("Switching a thread.");
+static void sched_switch(bool yield) {
   current_callout = (current_callout+1)%2;
-  callout_setup(&callout[current_callout], 5, sched_switch, NULL);
   thread_t* current_td = td_running;
   thread_t* new_td = sched_choose();
+
+  if (!yield)
+    callout_setup(&callout[current_callout], 5, sched_preempt, NULL);
 
   if (!new_td) {
     log("new_td is NULL.");
@@ -37,6 +38,16 @@ void sched_switch() {
   thread_switch_to(new_td);
 }
 
+void sched_preempt() {
+  log("Preempting a thread.");
+  sched_switch(false);
+}
+
+void sched_yield() {
+  log("Yielding a thread.");
+  sched_switch(true);
+}
+
 void sched_run() {
   log("Scheduler is run.");
   thread_t* new_td = sched_choose();
@@ -45,7 +56,7 @@ void sched_run() {
     panic("There are no threads to be executed\n");
 
   current_callout = 0;
-  callout_setup(&callout[current_callout], 5, sched_switch, NULL);
+  callout_setup(&callout[current_callout], 5, sched_preempt, NULL);
 
   thread_switch_to(new_td);
   panic("We shouldn't be here");
@@ -82,16 +93,25 @@ static void demo_thread_3() {
   }
 }
 
+static void demo_thread_4() {
+  while(true) {
+    kprintf("demo_thread_4 running. Let's yield.\n");
+    sched_yield();
+  }
+}
+
 int main() {
   sched_init();
 
   thread_t *td1 = thread_create(demo_thread_1);
   thread_t *td2 = thread_create(demo_thread_2);
   thread_t *td3 = thread_create(demo_thread_3);
+  thread_t *td4 = thread_create(demo_thread_4);
 
   sched_add(td1);
   sched_add(td2);
   sched_add(td3);
+  sched_add(td4);
 
   sched_run();
 
