@@ -45,6 +45,7 @@ void sched_preempt() {
 
 void sched_yield() {
   log("Yielding a thread.");
+  intr_disable();
   sched_switch(true);
 }
 
