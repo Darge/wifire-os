@@ -98,25 +98,25 @@ static void demo_thread_2() {
   }
 }
 
-// static void demo_thread_3() {
-//   intr_enable();
-//   while (true) {
-//     kprintf("demo_thread_3 running\n");
-//     for (int i = 0; i < 100000; i++) {};
-//     //sched_yield();
-//   }
-// }
+static void demo_thread_3() {
+  intr_enable();
+  while (true) {
+    kprintf("demo_thread_3 running\n");
+    for (int i = 0; i < 100000; i++) {};
+    //sched_yield();
+  }
+}
 
 int main() {
   sched_init();
 
   thread_t *td1 = thread_create(demo_thread_1);
   thread_t *td2 = thread_create(demo_thread_2);
-  //thread_t *td3 = thread_create(demo_thread_3);
+  thread_t *td3 = thread_create(demo_thread_3);
 
   sched_add(td1);
   sched_add(td2);
-  // sched_add(td3);
+  sched_add(td3);
 
   sched_run();
 
