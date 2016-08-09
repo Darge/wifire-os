@@ -7,7 +7,7 @@
 #include <interrupts.h>
 
 static runq_t runq;
-static callout_t callout[2];
+static callout_t callout[200000];
 static int current_callout = 0;
 
 void sched_init() {
@@ -17,8 +17,8 @@ void sched_init() {
 static bool firsttime = true;
 void sched_preempt() {
   log("Preempting.");
-   callout_setup(&callout[(current_callout+1)%2], 5, sched_preempt, NULL);
-  current_callout = (current_callout+1)%2;
+   callout_setup(&callout[current_callout+1], 5, sched_preempt, NULL);
+  current_callout = current_callout+1;
   if (firsttime == true)
   {
     firsttime = false;
@@ -54,7 +54,7 @@ void sched_add(thread_t *td) {
 }
 
 void sched_interrupt() {
-  log("A thread has yielded.");
+  log("A thread has been interrupted.");
   thread_t* current_td = td_running;
   thread_t* new_td = sched_choose();
 
