@@ -16,7 +16,7 @@ void sched_init() {
 
 void sched_preempt() {
   log("Preempting.");
-   callout_setup(&callout[current_callout+1], 5, sched_preempt, NULL);
+  callout_setup(&callout[current_callout+1], 5, sched_preempt, NULL);
   current_callout = current_callout+1;
   sched_switch();
 }
@@ -36,7 +36,7 @@ void sched_run() {
     panic("There are no threads to be executed\n");
 
   current_callout = 0;
-  callout_setup(&callout[current_callout], 5, sched_preempt, NULL); /* Bad stuff here. */
+  callout_setup(&callout[current_callout], 5, sched_preempt, NULL);
 
   thread_switch_to(new_td);
 }
@@ -51,9 +51,10 @@ void sched_switch() {
   thread_t* current_td = td_running;
   thread_t* new_td = sched_choose();
 
-  if (!new_td)
-    //return;
-    panic("new_td is NULL");
+  if (!new_td) {
+    log("new_td is NULL.");
+    return;
+  }
 
   sched_add(current_td);
   thread_switch_to(new_td);
