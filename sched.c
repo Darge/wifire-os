@@ -46,19 +46,6 @@ void sched_add(thread_t *td) {
   runq_add(&runq, td);
 }
 
-// void sched_interrupt() {
-//   log("A thread has been interrupted.");
-//   thread_t* current_td = td_running;
-//   thread_t* new_td = sched_choose();
-
-//   if (!new_td)
-//     //return;
-//     panic("new_td is NULL");
-
-//   sched_add(current_td);
-//   thread_switch_to_interrupt(new_td);
-// }
-
 void sched_switch() {
   log("A thread has yielded.");
   thread_t* current_td = td_running;
@@ -77,24 +64,18 @@ void sched_switch() {
 
 static void demo_thread_1() {
   log("entering demo_thread_1");
-  //intr_enable();
   while (true) {
     kprintf("demo_thread_1 running.\n");
     for (int i = 0; i < 20000; i++) {};
-    //sched_yield();
   }
 }
 
 static void demo_thread_2() {
   log("entering demo_thread_2");
-  //__extension__ ({ asm("lw $k0, demo_thread_"); });
-  //__extension__ ({ asm("mtc0 $k0,$14"); });
   intr_enable();
-  // __extension__ ({ asm("eret"); });
   while (true) {
     kprintf("demo_thread_2 running\n");
     for (int i = 0; i < 20000; i++) {};
-    //sched_yield();
   }
 }
 
@@ -103,7 +84,6 @@ static void demo_thread_3() {
   while (true) {
     kprintf("demo_thread_3 running\n");
     for (int i = 0; i < 100000; i++) {};
-    //sched_yield();
   }
 }
 
