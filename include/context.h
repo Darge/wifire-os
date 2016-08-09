@@ -46,9 +46,7 @@ uint32_t ctx_save(ctx_t *ctx) __attribute__((warn_unused_result));
  */
 void noreturn ctx_load(const ctx_t *ctx);
 
-uint32_t ctx_save_interrupt(ctx_t *ctx) __attribute__((warn_unused_result));
 void noreturn ctx_load_interrupt(const ctx_t *ctx);
-
 
 /*
  * Calls a function in a new context. This function does not return.
