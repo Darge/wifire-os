@@ -44,15 +44,15 @@ void ctx_init(ctx_t *ctx, void (*target)(), void *sp, bool falseStack) {
   ctx->s7 = ZEROOOOO;
 
 
-  // if (falseStack) {
-  //   log("sp: %p", sp);
-     *((ctx_t*)sp) = *ctx;
-  //   ctx->sp = (intptr_t)((char*)sp - 128); // 30 // change to sizeof(ctx_t)
-  //   log("ctx->sp: %p", (void*)ctx->sp);
-  // }
-  // else {
+  if (falseStack) {
+    log("sp: %p", sp);
+    ctx->sp = (intptr_t)((char*)sp - 128); // change to sizeof(ctx_t)
+    *((ctx_t*)ctx->sp) = *ctx;
+    log("ctx->sp: %p", (void*)ctx->sp);
+  }
+  else {
     ctx->sp = (intptr_t)sp;
-  // }
+  }
 }
 
 void ctx_switch(ctx_t *from, ctx_t *to) {
