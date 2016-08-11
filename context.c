@@ -10,38 +10,11 @@ void ctx_init(ctx_t *ctx, void (*target)(), void *sp, bool falseStack) {
 
   #define ZEROOOOO 15
 
-  ctx->t0 = ZEROOOOO+1;
-  ctx->t1 = ZEROOOOO;
-  ctx->t2 = ZEROOOOO;
-  ctx->t3 = ZEROOOOO;
-  ctx->t4 = ZEROOOOO;
-  ctx->t5 = ZEROOOOO;
-  ctx->t6 = ZEROOOOO;
-  ctx->t7 = ZEROOOOO;
-  ctx->t8 = ZEROOOOO;
-  ctx->t9 = ZEROOOOO;
-  ctx->a0 = ZEROOOOO; // 10
-  ctx->a1 = ZEROOOOO;
-  ctx->a2 = ZEROOOOO;
-  ctx->a3 = ZEROOOOO;
-  ctx->v0 = ZEROOOOO;
-  ctx->v1 = ZEROOOOO; // 15
-  //ctx->ra = (intptr_t) (((char*)(_ebase)) + 0x2e0); // 16
-  
+  /* How to do it with the label? Here, I took the address of
+     label new_thread (from intr.S) manually, from gdb. */
   ctx->ra = (intptr_t)0x801003c8;
-  ctx->hi = ZEROOOOO;
-  ctx->lo = ZEROOOOO;
-  ctx->epc = (intptr_t)target; /* How to do it with the label? */
-  ctx->gp = (intptr_t)gp; // 20
-  ctx->fp = ZEROOOOO; // 21
-  ctx->s0 = ZEROOOOO;
-  ctx->s1 = ZEROOOOO;
-  ctx->s2 = ZEROOOOO;
-  ctx->s3 = ZEROOOOO; // 25
-  ctx->s4 = ZEROOOOO;
-  ctx->s5 = ZEROOOOO;
-  ctx->s6 = ZEROOOOO;
-  ctx->s7 = ZEROOOOO;
+  ctx->epc = (intptr_t)target;
+  ctx->gp = (intptr_t)gp;
 
 
   if (falseStack) {
