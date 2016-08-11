@@ -3,6 +3,8 @@
 
         .set	noreorder       // Don't allow the assembler to reorder instructions.
 
+        .globl irq7
+
         .local tlb_refill
         .local cache_error
         .local general_exception
@@ -14,7 +16,7 @@
         .local irq4
         .local irq5
         .local irq6
-        .local irq7
+        //.local irq7
 
         .section .ebase
 
@@ -120,7 +122,7 @@ irq_yield:
         j irq_handler
         nop
 
-#define REG_STACK_STORE_SIZE 84
+#define REG_STACK_STORE_SIZE 128
 
         .set	noat            // Don't allow the assembler to use r1(at) for synthetic instr.
 
@@ -164,6 +166,18 @@ irq_handler:
         mfc0    $k0, $14
         sw      $k0, 76($sp)
 
+        sw      $gp, 80($sp)
+        sw      $fp, 84($sp)
+
+        sw      $s0, 88($sp)
+        sw      $s1, 92($sp)
+        sw      $s2, 96($sp)
+        sw      $s3, 100($sp)
+        sw      $s4, 104($sp)
+        sw      $s5, 108($sp)
+        sw      $s6, 112($sp)
+        sw      $s7, 116($sp)
+
         lw $k0, cs_level
         addi $k0, 1
         la $t0, cs_level
@@ -174,6 +188,19 @@ irq_handler:
         nop
 
         /* Restore registers. */
+
+        lw      $s7, 116($sp)
+        lw      $s6, 112($sp)
+        lw      $s3, 100($sp)
+        lw      $s5, 108($sp)
+        lw      $s4, 104($sp)
+        lw      $s2, 96($sp)
+        lw      $s1, 92($sp)
+        lw      $s0, 88($sp)
+
+
+        lw      $fp, 84($sp)
+        lw      $gp, 80($sp)
 
         lw $k0, cs_level
         addi $k0, -1

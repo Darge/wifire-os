@@ -45,19 +45,19 @@ thread_t* thread_switch_to(thread_t *td_ready) {
   log("Switching threads from %p to %p.", td_running, td_ready);
   assert(td_running != td_ready);
 
-  bool first_time = (td_ready->td_state == TDS_NEW);
+  //bool first_time = (td_ready->td_state == TDS_NEW);
   swap(td_running, td_ready);
   td_running->td_state = TDS_RUNNING;
   td_ready->td_state = TDS_READY;
-  if (first_time) {
-    log("ctx_switch_interrupt()");
-    ctx_switch_interrupt(&td_ready->td_context, &td_running->td_context);
-  }
-  else {
+  //if (first_time) {
+    //log("ctx_switch_interrupt()");
+    //ctx_switch_interrupt(&td_ready->td_context, &td_running->td_context);
+  //}
+  //else {
     log("ctx_switch()");
     ctx_switch(&td_ready->td_context, &td_running->td_context);
 
-  }
+  //}
   return td_ready;
 }
 

@@ -20,13 +20,24 @@ typedef struct stack {
 typedef struct ctx {
   union {
     struct {
+      intptr_t t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
+      intptr_t a0, a1, a2, a3;
+      intptr_t v0, v1;
       intptr_t ra;
-      intptr_t fp;
-      intptr_t sp;
-      intptr_t gp;
+      intptr_t lo, hi;
+      intptr_t epc;
+      intptr_t gp, fp;
       intptr_t s0, s1, s2, s3, s4, s5, s6, s7;
+      intptr_t sp;
+
+
+      // intptr_t ra;
+      // intptr_t fp;
+      // intptr_t sp;
+      // intptr_t gp;
+      // intptr_t s0, s1, s2, s3, s4, s5, s6, s7;
     };
-    intptr_t regs[12];
+    intptr_t regs[128/4];
   };
 } ctx_t;
 
