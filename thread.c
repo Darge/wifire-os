@@ -28,7 +28,7 @@ _Noreturn void thread_init(void (*fn)(), int argc, ...) {
 thread_t *thread_create(void (*fn)()) {
   thread_t *td = kmalloc(td_pool, sizeof(thread_t), M_ZERO);
   td->td_stack = pm_alloc(1);
-  td->td_state = TDS_NEW;
+  td->td_state = TDS_READY;
   ctx_init(&td->td_context, fn, (void *)PG_VADDR_END(td->td_stack), true);
   return td;
 }
