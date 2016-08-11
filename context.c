@@ -1,14 +1,10 @@
 #include <libkern.h>
 #include <context.h>
 
-//extern void irq7();
-extern const char _ebase[];
 void ctx_init(ctx_t *ctx, void (*target)(), void *sp, bool falseStack) {
   register void *gp asm("$gp");
 
   bzero(ctx, sizeof(ctx_t));
-
-  #define ZEROOOOO 15
 
   /* How to do it with the label? Here, I took the address of
      label new_thread (from intr.S) manually, from gdb. */
