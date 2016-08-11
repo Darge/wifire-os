@@ -53,7 +53,7 @@ void hardclock() {
   callout_process();
 }
 
-/* whats wrong with the symbols? */
+/* whats wrong with linking ? quick workaround to make sched_switch visible in intr.S */
 void fooooooo() {
     sched_switch();
 }
