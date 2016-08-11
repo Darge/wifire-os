@@ -187,6 +187,8 @@ irq_handler:
         jalr    $k1
         nop
 
+
+new_thread:
         /* Restore registers. */
 
         lw      $s7, 116($sp)

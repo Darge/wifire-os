@@ -18,7 +18,7 @@ _Noreturn void thread_init(void (*fn)(), int argc, ...) {
 
   extern void kernel_exit();
   ctx_init(&td_running->td_context, kernel_exit,
-           (void *)PG_VADDR_END(td_running->td_stack));
+           (void *)PG_VADDR_END(td_running->td_stack), false);
 
   log("[thread] Activating first thread at %p.", td_running);
   /* TODO: How to pass arguments to called function? */
@@ -29,7 +29,7 @@ thread_t *thread_create(void (*fn)()) {
   thread_t *td = kmalloc(td_pool, sizeof(thread_t), M_ZERO);
   td->td_stack = pm_alloc(1);
   td->td_state = TDS_NEW;
-  ctx_init(&td->td_context, fn, (void *)PG_VADDR_END(td->td_stack));
+  ctx_init(&td->td_context, fn, (void *)PG_VADDR_END(td->td_stack), true);
   return td;
 }
 

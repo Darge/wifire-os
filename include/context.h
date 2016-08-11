@@ -70,7 +70,7 @@ void noreturn ctx_call(const ctx_t *ctx, void *fn);
  * WARNING: The target procedure MUST NOT RETURN. The result of such
  * event is undefined, but will generally restart the target function.
  */
-void ctx_init(ctx_t *ctx, void (*target)(), void *sp);
+void ctx_init(ctx_t *ctx, void (*target)(), void *sp, bool falseStack);
 
 /* This function stores the current context to @from, and resumes the
  * context stored in @to. It does not return immediatelly, it returns
