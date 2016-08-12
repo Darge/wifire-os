@@ -4,6 +4,9 @@
 #include <thread.h>
 #include <context.h>
 #include <interrupts.h>
+#include <sched.h>
+#include <critical_section.h>
+#include <sleepq.h>
 
 static thread_t *td_running = NULL;
 
@@ -37,6 +40,8 @@ noreturn void thread_init(void (*fn)(), int n, ...) {
   kprintf("[thread] Activating '%s' {%p} thread!\n", td->td_name, td);
   td->td_state = TDS_RUNNING;
   td_running = td;
+  /* I am leaving td_sleepqueue as NULL for now (scheduler shouldn't wait on a mutex). */
+  cs_enter();
   ctx_load(&td->td_context);
 }
 
@@ -46,6 +51,7 @@ thread_t *thread_create(const char *name, void (*fn)()) {
   td->td_name = name;
   td->td_stack = pm_alloc(1);
   td->td_state = TDS_READY;
+  td->td_sleepqueue = kmalloc(td_pool, sizeof(sleepq_t), M_ZERO);;
 
   ctx_init(&td->td_context, irq_return, (void *)PG_VADDR_END(td->td_stack));
 
@@ -54,7 +60,7 @@ thread_t *thread_create(const char *name, void (*fn)()) {
 
   /* In supervisor mode CPU may use ERET instruction even if Status.EXL = 0. */
   irq_ctx->reg[REG_EPC] = (intptr_t)fn;
-  irq_ctx->reg[REG_RA] = (intptr_t)kernel_exit;
+  irq_ctx->reg[REG_RA] = (intptr_t)thread_exit;
 
   return td;
 }
@@ -79,6 +85,12 @@ void thread_switch_to(thread_t *td_ready) {
   td_running->td_state = TDS_RUNNING;
   td_ready->td_state = TDS_READY;
   ctx_switch(&td_ready->td_context, &td_running->td_context);
+}
+
+void thread_exit() {
+  sched_yield(false);
+  panic("Executing a thread that already finished its execution.");
+
 }
 
 #ifdef _KERNELSPACE

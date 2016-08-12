@@ -6,39 +6,73 @@
 #include <thread.h>
 #include <callout.h>
 #include <interrupts.h>
-#include <mutex.h>
+#include <mips.h>
+#include <critical_section.h>
 
 static runq_t runq;
 static thread_t *td_sched;
 static callout_t sched_callout;
 
+
+//////////// RANDOM
+static unsigned long int next = 1;
+static int rand() {
+    next = next * 1103515245 + 12345;
+    return (unsigned int)(next / 65536) % 32768;
+}
+static void srand(unsigned int seed) {
+    next = seed;
+}
+
+static void do_random_stuff() {
+    for (int i = 0; i < rand()%5; i++) {
+        thread_t *td;
+        td = runq_choose(&runq);
+        if (td){
+            runq_remove(&runq, td);
+            runq_add(&runq, td);
+        }
+    }
+}
+//////////// RANDOM
+
 void sched_init() {
   runq_init(&runq);
+  srand(123);
 }
 
 void sched_add(thread_t *td) {
-  log("Add '%s' {%p} thread to scheduler", td->td_name, td);
+  cs_enter();
 
-  intr_disable();
+  log("Add '%s' {%p} thread to scheduler", td->td_name, td);
   runq_add(&runq, td);
-  intr_enable();
+
+  runq_debug(&runq);
+
+  cs_leave();
 }
 
 static bool sched_activate = false;
 
-void sched_yield() {
+void sched_yield(bool add_to_runq) {
   thread_t *td = thread_self();
-
   assert(td != td_sched);
 
   callout_stop(&sched_callout);
-  runq_add(&runq, td);
+  if (add_to_runq)
+    runq_add(&runq, td);
+  sched_activate = false;
+  cs_leave();
+  /* Scheduler shouldn't trouble us between these two instructions
+     because it's deactivated and not in the callout. */
   thread_switch_to(td_sched);
+  cs_leave();
 }
 
 static void sched_wakeup() {
-  thread_t *td = thread_self();
+  assert(during_intr_handler());
 
+  thread_t *td = thread_self();
   assert(td != td_sched);
 
   callout_stop(&sched_callout);
@@ -47,15 +81,18 @@ static void sched_wakeup() {
 }
 
 void sched_resume() {
-  bool irq_active = mips32_get_c0(C0_STATUS) & SR_EXL;
-  assert(irq_active);
+  assert(during_intr_handler());
 
-  if (sched_activate) {
-    sched_activate = false;
-    mips32_bc_c0(C0_STATUS, SR_EXL);
-    intr_enable();
-    thread_switch_to(td_sched);
-  }
+  if (!sched_activate)
+    return;
+
+  sched_activate = false;
+  mips32_bc_c0(C0_STATUS, SR_EXL);
+  // intr_enable();
+  cs_leave();
+  /* Scheduler shouldn't trouble us between these two instructions
+     because it's deactivated and not in the callout. */
+  thread_switch_to(td_sched);
 }
 
 noreturn void sched_run(size_t quantum) {
@@ -64,7 +101,22 @@ noreturn void sched_run(size_t quantum) {
   while (true) {
     thread_t *td;
 
-    while (!(td = runq_choose(&runq)));
+    //while (!(td = runq_choose(&runq)));
+    while (true) {
+        cs_enter();
+        runq_debug(&runq);
+        do_random_stuff();
+        runq_debug(&runq);
+
+
+        td = runq_choose(&runq);
+        if (!td) {
+            cs_leave();
+            continue;
+        }
+
+        break;
+    }
 
     runq_remove(&runq, td);
     callout_setup(&sched_callout, clock_get_ms() + quantum, sched_wakeup, NULL);
@@ -84,7 +136,7 @@ static void demo_thread_1() {
 
 static void demo_thread_2() {
   kprintf("Running '%s' thread. Let's yield!\n", thread_self()->td_name);
-  sched_yield();
+  sched_yield(true);
   demo_thread_1();
 }
 
@@ -103,7 +155,7 @@ int main() {
   sched_add(t4);
   sched_add(t5);
 
-  sched_run(100);
+  sched_run(1);
 }
 
 #endif // _KERNELSPACE

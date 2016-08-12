@@ -27,4 +27,6 @@ thread_t *runq_choose(runq_t *);
 /* Remove the thread from the queue specified by its priority. */
 void runq_remove(runq_t *, thread_t *);
 
+void runq_debug(runq_t *);
+
 #endif

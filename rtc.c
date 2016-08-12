@@ -2,7 +2,7 @@
 #include <mips.h>
 #include <malta.h>
 #include <rtc.h>
-
+#include <clock.h>
 /* http://geezer.osdevbrasil.net/temp/rtc.txt */
 
 #define RTC_ADDR_R *(volatile uint8_t*)(MIPS_PHYS_TO_KSEG1(MALTA_RTC_ADDR))
@@ -26,19 +26,19 @@ void rtc_read(rtc_time_t *t) {
   RTC_ADDR_R = 9; t->year = RTC_DATA_R + 2000;
 }
 
-#ifdef _KERNELSPACE
-#include <libkern.h>
-#include <clock.h>
-
-/*
- * Delays for at least the given number of milliseconds. May not be
- * nanosecond-accurate.
- */
 void mdelay (unsigned msec) {
   unsigned now = clock_get_ms();
   unsigned final = now + msec;
   while (final > clock_get_ms());
 }
+
+#ifdef _KERNELSPACE
+#include <libkern.h>
+
+/*
+ * Delays for at least the given number of milliseconds. May not be
+ * nanosecond-accurate.
+ */
 
 int main() {
   while (1) {

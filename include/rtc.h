@@ -13,5 +13,6 @@ typedef struct {
 
 void rtc_init();
 void rtc_read(rtc_time_t *t);
+void mdelay (unsigned msec);
 
 #endif
