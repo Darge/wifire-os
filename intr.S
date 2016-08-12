@@ -3,6 +3,7 @@
 
         .set	noreorder       // Don't allow the assembler to reorder instructions.
 
+        .global cs_error
         .local tlb_refill
         .local cache_error
         .local general_exception
@@ -175,12 +176,28 @@ irq_handler:
         sw      $s6, 112($sp)
         sw      $s7, 116($sp)
 
+        /* Now we can safely use the $t0 register to increase cs_level. */
+        lw $k0, cs_level
+        addi $k0, 1
+        la $t0, cs_level
+        sw $k0, ($t0)
+
         /* Call the C routine. */
         jalr    $k1
         nop
 
 
 new_thread:
+        /* Lowering cs_level by one. It should become 0
+         * or else there is something wrong. */
+        lw $k0, cs_level
+        addi $k0, -1
+        la $t0, cs_level
+        sw $k0, ($t0)
+
+        bne $k0, $zero, cs_error
+        nop
+
         /* Restore registers. */
 
         lw      $s7, 116($sp)
@@ -229,3 +246,7 @@ new_thread:
         ei
 
         eret
+
+cs_error:
+    jal kernel_oops
+    nop

@@ -8,7 +8,7 @@ void ctx_init(ctx_t *ctx, void (*target)(), void *sp, bool prepare_stack) {
 
   /* How to do it with the label? Here, I took the address of
      label new_thread (from intr.S) manually, from gdb. */
-  ctx->ra = (intptr_t)0x801003b0;
+  ctx->ra = (intptr_t)0x801003c8;
   ctx->epc = (intptr_t)target;
   ctx->gp = (intptr_t)gp;
 

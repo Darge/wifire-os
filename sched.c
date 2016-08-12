@@ -23,6 +23,9 @@ static thread_t *sched_choose() {
 }
 
 void sched_switch() {
+  /* This should always be executed under intr_disable(). */
+  assert(cs_level > 0);
+
   thread_t *current_td = td_running;
   thread_t *new_td = sched_choose();
 
@@ -40,6 +43,9 @@ void sched_switch() {
 }
 
 void sched_preempt() {
+  /* This should always be executed under intr_disable(). */
+  assert(cs_level > 0);
+
   log("Preempting a thread.");
   sched_switch();
 }
@@ -50,7 +56,9 @@ void sched_yield() {
 }
 
 void sched_run() {
-  intr_disable();
+  /* The corresponding cs_leave will happen in intr.S,
+     in the context of the new thread. */
+  cs_enter();
   log("Scheduler is run.");
   thread_t *new_td = sched_choose();
 
@@ -65,8 +73,12 @@ void sched_run() {
 }
 
 void sched_add(thread_t *td) {
+  cs_enter();
+
   log("Adding a thread to the runqueue.");
   runq_add(&runq, td);
+
+  cs_leave();
 }
 
 

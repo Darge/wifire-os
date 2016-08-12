@@ -1,19 +1,13 @@
 #ifndef __SYS_MUTEX_H__
 #define __SYS_MUTEX_H__
 
-#include <common.h>
-#include <mips.h>
+#include <mutex.h>
 
-typedef volatile uintptr_t mtx_t;
+extern volatile int cs_level;
 
-#define MTX_INITIALIZER 0
+void cs_enter();
 
-#define mtx_lock(m) __extension__ ({ \
-  m = _mips_intdisable();            \
-})
-
-#define mtx_unlock(m) __extension__ ({ \
-  _mips_intrestore(m);                 \
-})
+void cs_leave();
 
 #endif /* __SYS_MUTEX_H__ */
+
