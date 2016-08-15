@@ -38,21 +38,29 @@ void mtx_yield_unlock(mtx_yield_t *mtx) {
 
 static volatile uint32_t counter = 0;
 #define REPS 10000000
+static mtx_yield_t m;
 
 static void demo_thread_1() {
-  for (int i = 0; i < REPS; i++)
+  for (int i = 0; i < REPS; i++) {
+    mtx_yield_lock(&m);
     counter++;
+    mtx_yield_unlock(&m);
+ }
   log("%zu", counter);
 }
 
 static void demo_thread_2() {
-  for (int i = 0; i < REPS; i++)
+  for (int i = 0; i < REPS; i++) {
+    mtx_yield_lock(&m);
     counter++;
+    mtx_yield_unlock(&m);
+  }
   log("%zu", counter);
 }
 
 int main() {
   sched_init();
+  mtx_yield_init(&m);
 
   thread_t *t1 = thread_create("t1", demo_thread_1);
   thread_t *t2 = thread_create("t2", demo_thread_2);
