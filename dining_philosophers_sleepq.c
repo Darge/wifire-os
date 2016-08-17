@@ -19,13 +19,6 @@ static int left_mtx[] = {0, 1, 2, 3};
 static int right_mtx[] = {3, 0, 1, 2};
 static int counter[] = {0, 0, 0, 0};
 
-// static void mdelay (unsigned msec) {
-//   unsigned now = clock_get_ms();
-//   unsigned final = now + msec;
-//   while (final > clock_get_ms());
-// }
-
-
 static void philosopher_loop(int number) {
     while (true) {
       int first_mtx = min(left_mtx[number], right_mtx[number]);
@@ -40,7 +33,7 @@ static void philosopher_loop(int number) {
 
       counter[number]++;
       log("Number %d acquired two locks: %d, %d. Counters: %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3]);
-      mdelay(3);
+      mdelay(300);
 
       mtx_sleepq_unlock(&mtxs[first_mtx]);
       mtx_sleepq_unlock(&mtxs[second_mtx]);
