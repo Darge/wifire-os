@@ -36,7 +36,7 @@ sleepq_t *sleepq_lookup(void *wchan) {
 
 void sleepq_add(void *wchan, const char *wmesg, thread_t *td) {
   cs_enter();
-  log("Adding a thread to the sleep queue. *td: %p, *wchan: %p", td, wchan);
+  log("Adding a thread to the sleep queue. *td: %p, *wchan: %p, *name: %s", td, wchan, td->td_name);
 
   assert(td->td_wchan == NULL);
   assert(td->td_wmesg == NULL);
@@ -83,7 +83,7 @@ void sleepq_wait(void *wchan) {
 /* Remove a thread from the sleep queue and resume it. */
 static void sleepq_resume_thread(sleepq_t *sq, thread_t *td) {
   cs_enter();
-  log("Resuming thread from sleepq. *td: %p, *td_wchan: %p", td, td->td_wchan);
+  log("Resuming thread from sleepq. *td: %p, *td_wchan: %p, *name: %s", td, td->td_wchan, td->td_name);
 
   assert(td->td_wchan != NULL);
   assert(td->td_sleepqueue == NULL);

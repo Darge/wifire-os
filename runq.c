@@ -37,7 +37,7 @@ void runq_debug(runq_t *rq) {
     for (int i = 0; i < RQ_NQS; i++) {
         thread_t *td = NULL;
         TAILQ_FOREACH (td, &rq->rq_queues[i], td_runq) {
-            kprintf("One thread in runq! %s, priority: %d\n", td->td_name, td->td_priority);
+            kprintf("One thread in runq! %s, priority: %d \n", td->td_name, td->td_priority);
         }
     }
     kprintf("leave runq_debug()\n");
