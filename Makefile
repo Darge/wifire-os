@@ -6,12 +6,13 @@ CPPFLAGS += -Iinclude
 LDLIBS   += kernel.a -Llibkern -lkern -lgcc
 
 TESTS = callout.elf malloc.elf pmap.elf physmem.elf rtc.elf thread.elf \
-	vm_map.elf runq.test sched.elf mutex_sleepq.elf mutex_yield.elf \
-	dining_philosophers.elf
+	vm_map.elf runq.elf sched.elf mutex_sleepq.elf mutex_yield.elf \
+	dining_philosophers.elf dining_philosophers_sleepq.elf
 SOURCES_C = startup.c uart_cbus.c interrupts.c clock.c malloc.c context.c \
 	    physmem.c rtc.c pci.c pci_ids.c callout.c runq.c tlb.c pmap.c \
 	    thread.c vm_map.c pager.c sched.c critical_section.c sleepq.c \
-	    mutex_sleepq.c mutex_yield.c dining_philosophers.c
+	    mutex_sleepq.c mutex_yield.c dining_philosophers.c \
+	    dining_philosophers_sleepq.c
 SOURCES_ASM = boot.S intr.S context-mips.S tlb-mips.S
 SOURCES_ASM = boot.S context-mips.S tlb-mips.S
 SOURCES = $(SOURCES_C) $(SOURCES_ASM)
@@ -33,6 +34,8 @@ sched.elf: sched.ko $(KRT)
 mutex_sleepq.elf: mutex_sleepq.ko $(KRT)
 mutex_yield.elf: mutex_yield.ko $(KRT)
 dining_philosophers.elf: dining_philosophers.ko $(KRT)
+dining_philosophers_sleepq.elf: dining_philosophers_sleepq.ko $(KRT)
+runq.elf: runq.ko $(KRT)
 kernel.a: $(OBJECTS)
 
 $(foreach file,$(SOURCES) null,$(eval $(call emit_dep_rule,$(file))))

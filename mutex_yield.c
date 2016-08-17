@@ -13,8 +13,10 @@ void mtx_yield_lock(mtx_yield_t *mtx) {
   assert(mtx);
 
   while (true) {
-    while (*mtx == 1)
+    while (*mtx == 1) {
+      log("yielding.");
       sched_yield(true);
+    }
 
     cs_enter();
     if (*mtx == 0) {
@@ -67,7 +69,7 @@ int main() {
   sched_add(t1);
   sched_add(t2);
 
-  sched_run(100);
+  sched_run(10);
 }
 
 #endif // _KERNELSPACE

@@ -18,6 +18,7 @@
         .local irq7
 
         .globl irq_return
+        .globl cs_error
 
         .section .ebase
 
@@ -147,11 +148,25 @@ irq_handler:
         mfc0    $k0, C0_EPC
         sw      $k0, (REG_EPC*4)($sp)
 
+        lw $k0, cs_level
+        bne $k0, $zero, cs_error
+        nop
+        addi $k0, 1
+        la $t0, cs_level
+        sw $k0, ($t0)
+
         /* Call the C routine. */
         jalr    $k1
         nop
 
 irq_return:
+        lw $k0, cs_level
+        addi $k0, -1
+        la $t0, cs_level
+        sw $k0, ($t0)
+        bne $k0, $zero, cs_error
+        nop
+
         /* Restore exception program counter... */
         lw      $k0, (REG_EPC*4)($sp)
         mtc0    $k0, C0_EPC    
@@ -189,3 +204,8 @@ irq_return:
         ei
 
         eret
+
+
+cs_error:
+    jal kernel_oops
+    nop

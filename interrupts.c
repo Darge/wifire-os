@@ -186,3 +186,7 @@ void *general_exception_table[32] = {
 bool during_intr_handler() {
   return mips32_get_c0(C0_STATUS) & SR_EXL;
 }
+
+bool during_exception() {
+  return mips32_get_c0(C0_STATUS) & SR_ERL;
+}

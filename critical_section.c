@@ -6,15 +6,15 @@
 volatile int cs_level = 0;
 
 void cs_enter() {
-  if (during_intr_handler())
-    return;
+  // if (during_intr_handler())
+  //   return;
   intr_disable();
   cs_level++;
 }
 
 void cs_leave() {
-  if (during_intr_handler())
-    return;
+  // if (during_intr_handler())
+  //   return;
 
   assert(cs_level > 0);
 

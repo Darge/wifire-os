@@ -5,6 +5,7 @@
 #include <context.h>
 #include <interrupts.h>
 #include <sched.h>
+#include <critical_section.h>
 
 static thread_t *td_running = NULL;
 
@@ -38,6 +39,7 @@ noreturn void thread_init(void (*fn)(), int n, ...) {
   kprintf("[thread] Activating '%s' {%p} thread!\n", td->td_name, td);
   td->td_state = TDS_RUNNING;
   td_running = td;
+  cs_enter();
   ctx_load(&td->td_context);
 }
 

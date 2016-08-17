@@ -23,6 +23,8 @@ void sched_add(thread_t *td) {
   log("Add '%s' {%p} thread to scheduler", td->td_name, td);
   runq_add(&runq, td);
 
+  runq_debug(&runq);
+
   cs_leave();
 }
 
@@ -41,6 +43,7 @@ void sched_yield(bool add_to_runq) {
   /* Scheduler shouldn't trouble us between these two instructions
      because it's deactivated and not in the callout. */
   thread_switch_to(td_sched);
+  cs_leave();
 }
 
 static void sched_wakeup() {
@@ -62,7 +65,8 @@ void sched_resume() {
 
   sched_activate = false;
   mips32_bc_c0(C0_STATUS, SR_EXL);
-  intr_enable();
+  // intr_enable();
+  cs_leave();
   /* Scheduler shouldn't trouble us between these two instructions
      because it's deactivated and not in the callout. */
   thread_switch_to(td_sched);
@@ -74,7 +78,18 @@ noreturn void sched_run(size_t quantum) {
   while (true) {
     thread_t *td;
 
-    while (!(td = runq_choose(&runq)));
+    //while (!(td = runq_choose(&runq)));
+    while (true) {
+        cs_enter();
+        //runq_debug(&runq);
+        td = runq_choose(&runq);
+        if (!td) {
+            cs_leave();
+            continue;
+        }
+
+        break;
+    }
 
     runq_remove(&runq, td);
     callout_setup(&sched_callout, clock_get_ms() + quantum, sched_wakeup, NULL);
@@ -113,7 +128,7 @@ int main() {
   sched_add(t4);
   sched_add(t5);
 
-  sched_run(100);
+  sched_run(10);
 }
 
 #endif // _KERNELSPACE

@@ -1,5 +1,5 @@
-#include <common.h>
 #include <libkern.h>
+#include <common.h>
 #include <thread.h>
 #include <runq.h>
 
@@ -32,7 +32,18 @@ void runq_remove(runq_t *rq, thread_t *td) {
   TAILQ_REMOVE(&rq->rq_queues[priority], td, td_runq);
 }
 
-#ifdef _USERSPACE
+void runq_debug(runq_t *rq) {
+    kprintf("enter runq_debug()\n");
+    for (int i = 0; i < RQ_NQS; i++) {
+        thread_t *td = NULL;
+        TAILQ_FOREACH (td, &rq->rq_queues[i], td_runq) {
+            kprintf("One thread in runq! %s\n", td->td_name);
+        }
+    }
+    kprintf("leave runq_debug()\n");
+}
+
+#ifdef _KERNELSPACE
 int main() {
   thread_t t1;
   t1.td_priority = 3 * RQ_PPQ;
@@ -73,4 +84,4 @@ int main() {
 
   return 0;
 }
-#endif // _USERSPACE
+#endif // _KERNELSPACE
