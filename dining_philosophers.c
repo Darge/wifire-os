@@ -79,6 +79,7 @@ int main() {
   mtx_yield_init(&mtxs[1]);
   mtx_yield_init(&mtxs[2]);
   mtx_yield_init(&mtxs[3]);
+  mtx_yield_init(&mtxs[4]);
 
   thread_t *t0 = thread_create("t0", demo_thread_0);
   thread_t *t1 = thread_create("t1", demo_thread_1);

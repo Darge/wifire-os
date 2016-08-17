@@ -8,12 +8,12 @@
 
 #ifdef _KERNELSPACE
 
-static mtx_sleepq_t mtxs[4];
+static mtx_sleepq_t mtxs[5];
 
-static int left_mtx[] = {0, 1, 2, 3};
-static int right_mtx[] = {3, 0, 1, 2};
+static int left_mtx[] = {0, 1, 2, 3, 4};
+static int right_mtx[] = {4, 0, 1, 2, 3};
 
-static int counter[] = {0, 0, 0, 0};
+static int counter[] = {0, 0, 0, 0, 0};
 
 static void philosopher_loop(int number) {
     while (true) {
@@ -25,8 +25,8 @@ static void philosopher_loop(int number) {
       mtx_sleepq_lock(&mtxs[second_mtx]);
 
       counter[number]++;
-      log("Number %d acquired two locks: %d, %d. Counters: %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3]);
-      mdelay(300);
+      log("Number %d acquired two locks: %d, %d. Counters: %d %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3], counter[4]);
+      mdelay(100);
 
       mtx_sleepq_unlock(&mtxs[first_mtx]);
       mtx_sleepq_unlock(&mtxs[second_mtx]);
@@ -53,6 +53,12 @@ static void demo_thread_3() {
   philosopher_loop(number);
 }
 
+static void demo_thread_4() {
+  int number = 4;
+  philosopher_loop(number);
+}
+
+
 int main() {
   sched_init();
 
@@ -60,12 +66,15 @@ int main() {
   mtx_sleepq_init(&mtxs[1]);
   mtx_sleepq_init(&mtxs[2]);
   mtx_sleepq_init(&mtxs[3]);
+  mtx_sleepq_init(&mtxs[4]);
 
-  thread_t *t1 = thread_create("t0", demo_thread_0);
-  thread_t *t2 = thread_create("t1", demo_thread_1);
-  thread_t *t3 = thread_create("t2", demo_thread_2);
-  thread_t *t4 = thread_create("t3", demo_thread_3);
+  thread_t *t0 = thread_create("t0", demo_thread_0);
+  thread_t *t1 = thread_create("t1", demo_thread_1);
+  thread_t *t2 = thread_create("t2", demo_thread_2);
+  thread_t *t3 = thread_create("t3", demo_thread_3);
+  thread_t *t4 = thread_create("t4", demo_thread_4);
 
+  sched_add(t0);
   sched_add(t1);
   sched_add(t2);
   sched_add(t3);
