@@ -9,14 +9,10 @@
 #ifdef _KERNELSPACE
 
 static mtx_sleepq_t mtxs[4];
-//         P0
-//     f3       f0
-//  P3             P1
-//     f2       f1
-//         P2
-//
+
 static int left_mtx[] = {0, 1, 2, 3};
 static int right_mtx[] = {3, 0, 1, 2};
+
 static int counter[] = {0, 0, 0, 0};
 
 static void philosopher_loop(int number) {
@@ -24,9 +20,6 @@ static void philosopher_loop(int number) {
       int first_mtx = min(left_mtx[number], right_mtx[number]);
       int second_mtx = max(left_mtx[number], right_mtx[number]);
 
-
-
-      //log("Number %d will try to lock something", number);
       mdelay(3);
       mtx_sleepq_lock(&mtxs[first_mtx]);
       mtx_sleepq_lock(&mtxs[second_mtx]);
