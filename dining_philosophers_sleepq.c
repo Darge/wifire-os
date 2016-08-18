@@ -16,26 +16,26 @@ static int right_mtx[] = {4, 0, 1, 2, 3};
 
 static int counter[] = {0, 0, 0, 0, 0};
 
-static void print_mtxs() {
-    cs_enter();
-    log("Mutexes states: %d %d %d %d %d", (int)mtxs[0], (int)mtxs[1], (int)mtxs[2], (int)mtxs[3], (int)mtxs[4]);
+#define PRINT_MUTXS cs_enter(); \
+    log("Thread: %s, Mutexes states: %d %d %d %d %d",thread_self()->td_name, (int)mtxs[0], (int)mtxs[1], (int)mtxs[2], (int)mtxs[3], (int)mtxs[4]); \
     cs_leave();
-}
 
 static void philosopher_loop(int number) {
     while (true) {
       int first_mtx = min(left_mtx[number], right_mtx[number]);
       int second_mtx = max(left_mtx[number], right_mtx[number]);
-      print_mtxs();
+      PRINT_MUTXS;
 
 
-      mdelay(21);
+      mdelay(12);
       mtx_sleepq_lock(&mtxs[first_mtx]);
+      PRINT_MUTXS;
       mtx_sleepq_lock(&mtxs[second_mtx]);
+      PRINT_MUTXS;
 
       counter[number]++;
       log("Number %d acquired two locks: %d, %d. Counters: %d %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3], counter[4]);
-      mdelay(100);
+      mdelay(35);
       //log("Number %d releasing two locks: %d, %d. Counters: %d %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3], counter[4]);
 
       mtx_sleepq_unlock(&mtxs[first_mtx]);
@@ -91,7 +91,7 @@ int main() {
   sched_add(t4);
 
 
-  sched_run(100);
+  sched_run(17);
 }
 
 #endif // _KERNELSPACE

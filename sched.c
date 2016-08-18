@@ -13,8 +13,32 @@ static runq_t runq;
 static thread_t *td_sched;
 static callout_t sched_callout;
 
+
+//////////// RANDOM
+static unsigned long int next = 1;
+static int rand() {
+    next = next * 1103515245 + 12345;
+    return (unsigned int)(next / 65536) % 32768;
+}
+static void srand(unsigned int seed) {
+    next = seed;
+}
+
+static void do_random_stuff() {
+    for (int i = 0; i < rand()%5; i++) {
+        thread_t *td;
+        td = runq_choose(&runq);
+        if (td){
+            runq_remove(&runq, td);
+            runq_add(&runq, td);
+        }
+    }
+}
+//////////// RANDOM
+
 void sched_init() {
   runq_init(&runq);
+  srand(123);
 }
 
 void sched_add(thread_t *td) {
@@ -81,7 +105,11 @@ noreturn void sched_run(size_t quantum) {
     //while (!(td = runq_choose(&runq)));
     while (true) {
         cs_enter();
-        //runq_debug(&runq);
+        runq_debug(&runq);
+        do_random_stuff();
+        runq_debug(&runq);
+
+
         td = runq_choose(&runq);
         if (!td) {
             cs_leave();
