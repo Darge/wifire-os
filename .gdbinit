@@ -1,6 +1,5 @@
 target remote localhost:1234
 break main
-break thread_switch_to
 ignore 2 4850
 skip kprintf
 skip cs_enter

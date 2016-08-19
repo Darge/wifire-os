@@ -13,12 +13,18 @@ void mtx_yield_lock(mtx_yield_t *mtx) {
   assert(mtx);
 
   while (true) {
-    while (*mtx == 1) {
-      log("yielding.");
-      sched_yield(true);
+    //while (*mtx == 1)
+      //sleepq_wait(mtx);
+    while (true) {
+        cs_enter();
+        if (*mtx == 1) {
+            sched_yield(true);
+            //cs_leave();
+            continue;
+        }
+        break;
     }
 
-    cs_enter();
     if (*mtx == 0) {
       *mtx = 1;
       cs_leave();
