@@ -114,8 +114,8 @@ void dump_cp0() {
            (sr & SR_IMASK) >> SR_IMASK_SHIFT,
            (sr & SR_KSU_MASK) >> SR_KSU_SHIFT,
            (sr & SR_ERL) >> SR_ERL_SHIFT,
-           (sr & SR_EXL) >> SR_ERL_SHIFT,
-           (sr & SR_IE) >> SR_ERL_SHIFT);
+           (sr & SR_EXL) >> SR_EXL_SHIFT,
+           (sr & SR_IE) >> SR_IE_SHIFT);
   kprintf ("IntCtl   : IPTI:%d IPPCI:%d VS:%d\n",
            (intctl & INTCTL_IPTI) >> INTCTL_IPTI_SHIFT,
            (intctl & INTCTL_IPPCI) >> INTCTL_IPPCI_SHIFT,

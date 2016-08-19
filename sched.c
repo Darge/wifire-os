@@ -64,6 +64,7 @@ void sched_yield(bool add_to_runq) {
     runq_add(&runq, td);
   sched_activate = false;
   cs_leave();
+  cs_leave();
   /* Scheduler shouldn't trouble us between these two instructions
      because it's deactivated and not in the callout. */
   thread_switch_to(td_sched);
@@ -156,7 +157,7 @@ int main() {
   sched_add(t4);
   sched_add(t5);
 
-  sched_run(10);
+  sched_run(1);
 }
 
 #endif // _KERNELSPACE

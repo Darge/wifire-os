@@ -14,10 +14,18 @@ void mtx_sleepq_lock(mtx_sleepq_t *mtx) {
   assert(mtx);
 
   while (true) {
-    while (*mtx == 1)
-      sleepq_wait(mtx);
+    //while (*mtx == 1)
+      //sleepq_wait(mtx);
+    while (true) {
+        cs_enter();
+        if (*mtx == 1) {
+            sleepq_wait(mtx);
+            //cs_leave();
+            continue;
+        }
+        break;
+    }
 
-    cs_enter();
     if (*mtx == 0) {
       *mtx = 1;
       cs_leave();

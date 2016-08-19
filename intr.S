@@ -201,6 +201,14 @@ irq_return:
         addu    $sp, $sp, REG_NUM * 4
 
         /* Re-enable interrupts. */
+
+        mfc0 $k0, $12 // move from status register
+        li $k1, 1
+        sll $k1, SR_EXL_SHIFT
+        or $k0, $k1, $k0
+        mtc0 $k0, $12
+        ehb
+
         ei
 
         eret

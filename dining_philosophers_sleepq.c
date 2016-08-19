@@ -27,7 +27,7 @@ static void philosopher_loop(int number) {
       PRINT_MUTXS;
 
 
-      mdelay(12);
+      mdelay(2);
       mtx_sleepq_lock(&mtxs[first_mtx]);
       PRINT_MUTXS;
       mtx_sleepq_lock(&mtxs[second_mtx]);
@@ -35,7 +35,7 @@ static void philosopher_loop(int number) {
 
       counter[number]++;
       log("Number %d acquired two locks: %d, %d. Counters: %d %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3], counter[4]);
-      mdelay(35);
+      mdelay(1);
       //log("Number %d releasing two locks: %d, %d. Counters: %d %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3], counter[4]);
 
       mtx_sleepq_unlock(&mtxs[first_mtx]);
@@ -91,7 +91,7 @@ int main() {
   sched_add(t4);
 
 
-  sched_run(17);
+  sched_run(1);
 }
 
 #endif // _KERNELSPACE
