@@ -58,12 +58,10 @@ void sched_yield(bool add_to_runq) {
   thread_t *td = thread_self();
   assert(td != td_sched);
 
-  cs_enter();
   callout_stop(&sched_callout);
   if (add_to_runq)
     runq_add(&runq, td);
   sched_activate = false;
-  cs_leave();
   cs_leave();
   /* Scheduler shouldn't trouble us between these two instructions
      because it's deactivated and not in the callout. */

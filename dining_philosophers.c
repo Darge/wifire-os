@@ -40,7 +40,7 @@ static void philosopher_loop(int number) {
 
       counter[number]++;
       log("Number %d acquired two locks: %d, %d. Counters: %d %d %d %d %d", number, first_mtx, second_mtx, counter[0], counter[1], counter[2], counter[3], counter[4]);
-      mdelay(3);
+      mdelay(2);
 
       mtx_yield_unlock(&mtxs[first_mtx]);
       mtx_yield_unlock(&mtxs[second_mtx]);
@@ -94,7 +94,7 @@ int main() {
   sched_add(t4);
 
 
-  sched_run(10);
+  sched_run(1);
 }
 
 #endif // _KERNELSPACE
